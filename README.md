@@ -4,19 +4,20 @@ NemoS - Is a simple Terminal Text Editor that is based on Nano.
 
 # Instuctions:
 
- Arrow Keys: Navigate
- Enter: Insert new line
- Backspace: Delete character
- Ctrl+S: Save file
+ Arrow Keys: Navigate /n
+ Enter: Insert new line /n
+ Backspace: Delete character /n 
+ Ctrl+S: Save file /n
+ Ctrl+R: Rename file
+/n
  Ctrl+X: Exit editor
  
 # Screenshots:
 
-![Screenshot From 2025-01-08 16-05-00](https://github.com/user-attachments/assets/a9e686a4-c209-47c2-999d-667fa381fe11)
+![Screenshot From 2025-01-10 22-01-23](https://github.com/user-attachments/assets/d4c91337-ab96-44ae-a3c4-0a2420d767fd)
 
-![Screenshot From 2025-01-08 16-05-16](https://github.com/user-attachments/assets/e2dc1e68-7b22-4f23-8591-1243cca7ee63)
+![Screenshot From 2025-01-10 22-02-13](https://github.com/user-attachments/assets/6b6bcd53-76bc-4191-b9b2-0754face7f59)
 
-![Screenshot From 2025-01-08 16-04-50](https://github.com/user-attachments/assets/22eb8994-4ffc-436c-8bf1-82a70c755211)
 
 # Compile:
 
