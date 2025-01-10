@@ -32,5 +32,3 @@ nemos txt.txt - Will use the file or create a new one if txt.txt does not exist.
 
 g++ main.cpp -o nemos -lncurses
 
-
-**This program is still in development.**
