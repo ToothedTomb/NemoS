@@ -3,8 +3,8 @@
 NemoS - Is a simple Terminal Text Editor that is based on Nano.
 
 # Install to your system:
-**Note: You need to be the root user.
-**
+**Note: You need to be the root user.**
+
 sudo bash install.sh 
 
 # Running the Application:
