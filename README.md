@@ -1,14 +1,25 @@
 # NemoS - Text Editor For Linux:
 
-NemoS - Is a simple Terminal Text Editor that is based on Nano. 
-# Instuctions:
+NemoS - Is a simple Terminal Text Editor that is based on Nano.
 
+# Install to your system:
+**Note: You need to be the root user.
+**
+sudo bash install.sh 
+
+# Running the Application:
+nemos - Will create a untitlied.txt file.
+nemos txt.txt - Will use the file or create a new one if txt.txt does not exist.
+
+
+# Instuctions:
  Arrow Keys: Navigate 
  Enter: Insert new line 
  Backspace: Delete character 
  Ctrl+S: Save file 
  Ctrl+R: Rename file
  Ctrl+X: Exit editor
+ 
  
 # Screenshots:
 
