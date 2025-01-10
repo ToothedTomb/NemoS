@@ -13,16 +13,19 @@ public:
         start_color();         // Enable colors
 
         // Define pinkish color pairs
-        init_pair(1, COLOR_CYAN, COLOR_BLACK); // Text in pink
+        init_pair(1, COLOR_CYAN, COLOR_BLACK);   // Text in pink
         init_pair(2, COLOR_BLACK, COLOR_MAGENTA); // Status bar
-        init_pair(3, COLOR_MAGENTA, COLOR_BLACK);  // Help text
+        init_pair(3, COLOR_MAGENTA, COLOR_BLACK); // Help text
     }
 
     ~NemoS() {
         endwin(); // End ncurses
     }
 
-    void run(const std::string &filename) {
+    void run(std::string &filename) {
+        if (filename.empty()) {
+            filename = "untitled.txt";
+        }
         loadFile(filename);
         drawEditor(filename);
     }
@@ -47,6 +50,22 @@ private:
         }
     }
 
+    void renameFile(std::string &filename) {
+        drawMessage("Enter new filename: ");
+        echo();
+        char newFilename[256];
+        getstr(newFilename);
+        noecho();
+
+        // Rename the file
+        if (std::rename(filename.c_str(), newFilename) == 0) {
+            filename = newFilename;
+            drawMessage("File renamed successfully!");
+        } else {
+            drawMessage("Failed to rename the file.");
+        }
+    }
+
     void drawHelp() {
         clear();
         attron(COLOR_PAIR(3));
@@ -55,22 +74,21 @@ private:
         mvprintw(4, 1, "Enter: Insert new line");
         mvprintw(5, 1, "Backspace: Delete character");
         mvprintw(6, 1, "Ctrl+S: Save file");
-        mvprintw(7, 1, "Ctrl+X: Exit editor");
-        mvprintw(9, 1, "Press any key to return to the editor...");
+        mvprintw(7, 1, "Ctrl+R: Rename file");
+        mvprintw(8, 1, "Ctrl+X: Exit editor");
+        mvprintw(10, 1, "Press any key to return to the editor...");
 
         attroff(COLOR_PAIR(3));
         getch();
     }
-    
 
-    void drawEditor(const std::string &filename) {
+    void drawEditor(std::string &filename) {
         bool running = true;
 
         while (running) {
-
             // Draw status bar
             attron(COLOR_PAIR(2));
-            mvprintw(LINES - 1, 0, "NemoS | File: %s | Ctrl+S: Save | Ctrl+H: Help | Ctrl+X: Exit", filename.c_str());
+            mvprintw(LINES - 1, 0, "NemoS | File: %s | Ctrl+S: Save | Ctrl+R: Rename | Ctrl+H: Help | Ctrl+X: Exit", filename.c_str());
             attroff(COLOR_PAIR(2));
             clear();
             attron(COLOR_PAIR(1));
@@ -81,7 +99,7 @@ private:
 
             // Draw status bar
             attron(COLOR_PAIR(2));
-            mvprintw(LINES - 1, 0, " NemoS | File: %s | Ctrl+S: Save | Ctrl+H: Help | Ctrl+X: Exit", filename.c_str());
+            mvprintw(LINES - 1, 0, " NemoS | File: %s | Ctrl+S: Save | Ctrl+R: Rename | Ctrl+H: Help | Ctrl+X: Exit", filename.c_str());
             attroff(COLOR_PAIR(2));
 
             // Place the cursor
@@ -128,6 +146,9 @@ private:
                     saveFile(filename);
                     drawMessage("File has been saved :)!");
                     break;
+                case 18: // Ctrl+R
+                    renameFile(filename);
+                    break;
                 case 8: // Ctrl+H
                     drawHelp();
                     break;
@@ -153,13 +174,13 @@ private:
 };
 
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        printf("Usage: %s <filename>\n", argv[0]);
-        return 1;
+    std::string filename;
+    if (argc >= 2) {
+        filename = argv[1];
     }
 
     NemoS editor;
-    editor.run(argv[1]);
+    editor.run(filename);
 
     return 0;
 }
