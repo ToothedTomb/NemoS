@@ -22,4 +22,4 @@ NemoS - Is a simple Terminal Text Editor that is based on Nano.
 g++ main.cpp -o nemos -lncurses
 
 
-**This program is still in development and I want to add other features like remane and open the program without needing a file.**
+**This program is still in development.**
