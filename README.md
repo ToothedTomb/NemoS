@@ -1,15 +1,13 @@
 # NemoS - Text Editor For Linux:
 
 NemoS - Is a simple Terminal Text Editor that is based on Nano. 
-
 # Instuctions:
 
- Arrow Keys: Navigate /n
- Enter: Insert new line /n
- Backspace: Delete character /n 
- Ctrl+S: Save file /n
+ Arrow Keys: Navigate 
+ Enter: Insert new line 
+ Backspace: Delete character 
+ Ctrl+S: Save file 
  Ctrl+R: Rename file
-/n
  Ctrl+X: Exit editor
  
 # Screenshots:
