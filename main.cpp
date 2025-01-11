@@ -27,6 +27,7 @@ SOFTWARE.
 #include <vector>
 #include <iostream>
 #include <stack>
+#include <sstream>
 
 class NemoS {
 public:
@@ -130,11 +131,38 @@ private:
             refresh();
         }
     }
+
+        //This function will display the word count to the taskbar the the bottom. 
+    int countWords(const std::string& text) {
+            std::istringstream stream(text);
+            std::string word;
+            int count = 0;
+            while (stream >> word) {
+                count++;
+            }
+            return count;
+    }
+
+
+    /*int countWords(const std::string& text) {
+        std::istringstream stream(text);
+        std::string word;
+        int count = 0;
+        while (stream >> word) {
+            count++;
+        }
+        return count;
+    }*/
     void drawEditor(std::string &filename) {
         bool running = true;
         int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
 
         while (running) {
+            std::string fullText;
+            for (const auto& line : content){
+                fullText += line + " ";
+            }
+            int wordCount = countWords(fullText);
             // Draw the editor content
             for (int i = 0; i < LINES - 1; ++i) { // Leave the last line for the status bar
                 move(i, 0);
@@ -154,7 +182,11 @@ private:
             move(LINES - 1, 0); // Move to the last line
             clrtoeol(); // Clear the status bar line
             attron(COLOR_PAIR(2));
-            mvprintw(LINES - 1, 0, "NemoS 3.0 | File: %s | Ctrl+H: Help | Ctrl+X: Exit", filename.c_str());
+
+
+
+
+            mvprintw(LINES - 1, 0, "NemoS 3.0 | File: %s | Word Count: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount);
             attroff(COLOR_PAIR(2));
 
             // Place the cursor in the correct position
