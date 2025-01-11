@@ -1,12 +1,15 @@
 # Security Policy
 
 ## Supported Versions
-
+Check mark = Supported.
+No check mark = End of Life. 
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 2       | :white_check_mark: |
+| 1       |                    |
 | ALPHA   |                    |
-| 1       | :white_check_mark: |
+
 
 
 
