@@ -25,6 +25,8 @@ SOFTWARE.
 #include <fstream>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <stack>
 
 class NemoS {
 public:
@@ -56,7 +58,8 @@ public:
 private:
     std::vector<std::string> content; // Stores the text file content
     int cursorX = 0, cursorY = 0;     // Cursor position
-
+    std::stack<std::vector<std::string>> undoStack; // Undo stack
+    std::stack<std::vector<std::string>> redoStack; // Redo stack
     void loadFile(const std::string &filename) {
         std::ifstream file(filename);
         std::string line;
@@ -98,13 +101,35 @@ private:
         mvprintw(5, 1, "Backspace: Delete character");
         mvprintw(6, 1, "Ctrl+S: Save file");
         mvprintw(7, 1, "Ctrl+R: Rename file");
-        mvprintw(8, 1, "Ctrl+X: Exit editor");
-        mvprintw(10, 1, "Press any key to return to the editor...");
+        mvprintw(8,1,  "Ctrl+Z: Undo changes");
+        mvprintw(9,1,   "Ctrl+Y: Redo changes");
+        mvprintw(10, 1, "Ctrl+X: Exit editor");
+        mvprintw(11, 1, "Press any key to return to the editor...");
 
         attroff(COLOR_PAIR(3));
         getch();
     }
+    void pushUndo(){
+        undoStack.push(content);
+        while (!redoStack.empty()) redoStack.pop();
 
+    }
+    void undo() {
+        if (!undoStack.empty()) {
+            redoStack.push(content); // Save current content to redo stack
+            content = undoStack.top(); // Restore previous content from undo stack
+            undoStack.pop();
+            refresh();
+        }
+    }
+    void redo() {
+        if (!redoStack.empty()) {
+            undoStack.push(content); // Save current content to undo stack
+            content = redoStack.top(); // Restore content from redo stack
+            redoStack.pop();
+            refresh();
+        }
+    }
     void drawEditor(std::string &filename) {
         bool running = true;
         int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
@@ -129,7 +154,7 @@ private:
             move(LINES - 1, 0); // Move to the last line
             clrtoeol(); // Clear the status bar line
             attron(COLOR_PAIR(2));
-            mvprintw(LINES - 1, 0, "NemoS 2.0 | File: %s | Ctrl+S: Save | Ctrl+R: Rename | Ctrl+H: Help | Ctrl+X: Exit", filename.c_str());
+            mvprintw(LINES - 1, 0, "NemoS 3.0 | File: %s | Ctrl+H: Help | Ctrl+X: Exit", filename.c_str());
             attroff(COLOR_PAIR(2));
 
             // Place the cursor in the correct position
@@ -155,6 +180,7 @@ private:
                     if (cursorX >= viewX + COLS - 1) viewX++; // Scroll right
                     break;
                 case '\n': // Enter key
+                pushUndo();
                     content.insert(content.begin() + cursorY + 1, content[cursorY].substr(cursorX));
                     content[cursorY] = content[cursorY].substr(0, cursorX);
                     cursorY++;
@@ -163,9 +189,11 @@ private:
                 case KEY_BACKSPACE:
                 case 127:
                     if (cursorX > 0) {
+                        pushUndo();
                         content[cursorY].erase(cursorX - 1, 1);
                         cursorX--;
                     } else if (cursorY > 0) {
+                        pushUndo();
                         cursorX = content[cursorY - 1].size();
                         content[cursorY - 1] += content[cursorY];
                         content.erase(content.begin() + cursorY);
@@ -182,10 +210,17 @@ private:
                 case 18: // Ctrl+R (Rename)
                     renameFile(filename);
                     break;
+                case 26: // Ctrl + Z Undo
+                    undo();
+                    break;
+                case 25: // ctrl + y for redo
+                    redo();
+                    break;
                 case 8: // Ctrl+H (Help)
                     drawHelp();
                     break;
                 default:
+                    pushUndo();
                     content[cursorY].insert(cursorX, 1, ch);
                     cursorX++;
 
