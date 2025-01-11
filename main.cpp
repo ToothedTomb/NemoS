@@ -1,3 +1,26 @@
+/* MIT License
+
+Copyright (c) 2025 Jonathan Steadman
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
 #include <ncurses.h>
 #include <fstream>
 #include <string>
@@ -60,9 +83,9 @@ private:
         // Rename the file
         if (std::rename(filename.c_str(), newFilename) == 0) {
             filename = newFilename;
-            drawMessage("File renamed successfully!");
+            drawMessage("File has been renamed. :)!");
         } else {
-            drawMessage("Failed to rename the file.");
+            drawMessage("Error: Failed to be renamed. Try again. :(");
         }
     }
 
@@ -84,42 +107,52 @@ private:
 
     void drawEditor(std::string &filename) {
         bool running = true;
+        int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
 
         while (running) {
-            // Draw status bar
-            attron(COLOR_PAIR(2));
-            mvprintw(LINES - 1, 0, "NemoS | File: %s | Ctrl+S: Save | Ctrl+R: Rename | Ctrl+H: Help | Ctrl+X: Exit", filename.c_str());
-            attroff(COLOR_PAIR(2));
-            clear();
-            attron(COLOR_PAIR(1));
-            for (int i = 0; i < content.size(); ++i) {
-                mvprintw(i, 0, "%s", content[i].c_str());
+            // Draw the editor content
+            for (int i = 0; i < LINES - 1; ++i) { // Leave the last line for the status bar
+                move(i, 0);
+                clrtoeol(); // Clear the line before redrawing
+
+                if (i + viewY < content.size()) {
+                    std::string line = content[i + viewY];
+                    if (viewX < line.size()) {
+                        attron(COLOR_PAIR(1));
+                        mvprintw(i, 0, "%s", line.substr(viewX, COLS - 1).c_str());
+                        attroff(COLOR_PAIR(1));
+                    }
+                }
             }
-            attroff(COLOR_PAIR(1));
 
-            // Draw status bar
+            // Draw the status bar at the bottom
+            move(LINES - 1, 0); // Move to the last line
+            clrtoeol(); // Clear the status bar line
             attron(COLOR_PAIR(2));
-            mvprintw(LINES - 1, 0, " NemoS | File: %s | Ctrl+S: Save | Ctrl+R: Rename | Ctrl+H: Help | Ctrl+X: Exit", filename.c_str());
+            mvprintw(LINES - 1, 0, "NemoS 2.0 | File: %s | Ctrl+S: Save | Ctrl+R: Rename | Ctrl+H: Help | Ctrl+X: Exit", filename.c_str());
             attroff(COLOR_PAIR(2));
 
-            // Place the cursor
-            move(cursorY, cursorX);
+            // Place the cursor in the correct position
+            move(cursorY - viewY, cursorX - viewX); // Adjust cursor position based on scroll
+            refresh(); // Refresh the screen after updates
 
-            int ch = getch();
+            int ch = getch(); // Get user input
             switch (ch) {
                 case KEY_UP:
                     if (cursorY > 0) cursorY--;
-                    if (cursorX > content[cursorY].size()) cursorX = content[cursorY].size();
+                    if (cursorY < viewY) viewY--; // Scroll up
                     break;
                 case KEY_DOWN:
                     if (cursorY < content.size() - 1) cursorY++;
-                    if (cursorX > content[cursorY].size()) cursorX = content[cursorY].size();
+                    if (cursorY >= viewY + LINES - 2) viewY++; // Scroll down
                     break;
                 case KEY_LEFT:
                     if (cursorX > 0) cursorX--;
+                    if (cursorX < viewX) viewX--; // Scroll left
                     break;
                 case KEY_RIGHT:
                     if (cursorX < content[cursorY].size()) cursorX++;
+                    if (cursorX >= viewX + COLS - 1) viewX++; // Scroll right
                     break;
                 case '\n': // Enter key
                     content.insert(content.begin() + cursorY + 1, content[cursorY].substr(cursorX));
@@ -139,22 +172,26 @@ private:
                         cursorY--;
                     }
                     break;
-                case 24: // Ctrl+X
+                case 24: // Ctrl+X (Exit)
                     running = false;
                     break;
-                case 19: // Ctrl+S
+                case 19: // Ctrl+S (Save)
                     saveFile(filename);
                     drawMessage("File has been saved :)!");
                     break;
-                case 18: // Ctrl+R
+                case 18: // Ctrl+R (Rename)
                     renameFile(filename);
                     break;
-                case 8: // Ctrl+H
+                case 8: // Ctrl+H (Help)
                     drawHelp();
                     break;
                 default:
                     content[cursorY].insert(cursorX, 1, ch);
                     cursorX++;
+
+                    // **Handle scrolling while typing**
+                    if (cursorX >= viewX + COLS - 1) viewX++; // Scroll horizontally when typing beyond the view
+                    if (cursorY >= viewY + LINES - 2) viewY++; // Scroll vertically if typing creates new lines
                     break;
             }
 
@@ -163,6 +200,11 @@ private:
             if (cursorY >= content.size()) cursorY = content.size() - 1;
         }
     }
+
+
+
+
+
 
     void drawMessage(const std::string &message) {
         attron(COLOR_PAIR(2));
