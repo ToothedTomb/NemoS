@@ -21,6 +21,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+
+// Notes you can get xclip installed with using the installer.sh file.
+
+// It is required when you want to paste text into the application. 
 #include <ncurses.h>
 #include <fstream>
 #include <string>
@@ -28,6 +32,8 @@ SOFTWARE.
 #include <iostream>
 #include <stack>
 #include <sstream>
+#include <cstdlib> // Allow me to use the paste feature.
+
 
 class NemoS {
 public:
@@ -102,10 +108,11 @@ private:
         mvprintw(5, 1, "Backspace: Delete character");
         mvprintw(6, 1, "Ctrl+S: Save file");
         mvprintw(7, 1, "Ctrl+R: Rename file");
-        mvprintw(8,1,  "Ctrl+Z: Undo changes");
-        mvprintw(9,1,   "Ctrl+Y: Redo changes");
-        mvprintw(10, 1, "Ctrl+X: Exit editor");
-        mvprintw(11, 1, "Press any key to return to the editor...");
+        mvprintw(8,1,  "Ctrl+V: Paste text");
+        mvprintw(9,1,  "Ctrl+Z: Undo changes");
+        mvprintw(10,1,   "Ctrl+Y: Redo changes");
+        mvprintw(11, 1, "Ctrl+X: Exit editor");
+        mvprintw(12, 1, "Press any key to return to the editor...");
 
         attroff(COLOR_PAIR(3));
         getch();
@@ -192,6 +199,7 @@ private:
             // Place the cursor in the correct position
             move(cursorY - viewY, cursorX - viewX); // Adjust cursor position based on scroll
             refresh(); // Refresh the screen after updates
+            FILE *clipboard = popen("xclip -o -selection clipboard", "r");
 
             int ch = getch(); // Get user input
             switch (ch) {
@@ -250,6 +258,25 @@ private:
                     break;
                 case 8: // Ctrl+H (Help)
                     drawHelp();
+                    break;
+                //The case 22 will be ctrl V that will allow for pasting text into the application.
+                case 22:
+                    pushUndo();
+                    if (clipboard){
+                        char buffer[256];
+                        std::string clipboardText;
+                        while (fgets(buffer, sizeof(buffer), clipboard)){
+                            clipboardText += buffer;
+                        }
+                        pclose(clipboard);
+
+
+
+                        content[cursorY].insert(cursorX,clipboardText);
+                        cursorX += clipboardText.size();
+                    } else{
+                        drawMessage("Error 2: Install XClip to paste text.");
+                    }
                     break;
                 default:
                     pushUndo();
