@@ -108,11 +108,12 @@ private:
         mvprintw(5, 1, "Backspace: Delete character");
         mvprintw(6, 1, "Ctrl+S: Save file");
         mvprintw(7, 1, "Ctrl+R: Rename file");
-        mvprintw(8,1,  "Ctrl+V: Paste text");
-        mvprintw(9,1,  "Ctrl+Z: Undo changes");
-        mvprintw(10,1,   "Ctrl+Y: Redo changes");
-        mvprintw(11, 1, "Ctrl+X: Exit editor");
-        mvprintw(12, 1, "Press any key to return to the editor...");
+        mvprintw(8,1, "Ctrl+C: Copy text");
+        mvprintw(9,1,  "Ctrl+V: Paste text");
+        mvprintw(10,1,  "Ctrl+Z: Undo changes");
+        mvprintw(11,1,   "Ctrl+Y: Redo changes");
+        mvprintw(12, 1, "Ctrl+X: Exit editor");
+        mvprintw(13, 1, "Press any key to return to the editor...");
 
         attroff(COLOR_PAIR(3));
         getch();
@@ -193,7 +194,7 @@ private:
 
 
 
-            mvprintw(LINES - 1, 0, "NemoS 3.0 | File: %s | Word Count: %d | Line: %d | Column: %d |Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
+            mvprintw(LINES - 1, 0, "NemoS 3.0 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
             attroff(COLOR_PAIR(2));
 
             // Place the cursor in the correct position
@@ -278,6 +279,10 @@ private:
                         drawMessage("Error 2: Install XClip to paste text.");
                     }
                     break;
+                case 3: // The case 3 will be used to add the control C support - Will allow for copying text.
+                    drawMessage("Control-C is working! :)");
+                    break;
+
                 default:
                     pushUndo();
                     content[cursorY].insert(cursorX, 1, ch);
