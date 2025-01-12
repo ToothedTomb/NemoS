@@ -186,7 +186,7 @@ private:
 
 
 
-            mvprintw(LINES - 1, 0, "NemoS 3.0 | File: %s | Word Count: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount);
+            mvprintw(LINES - 1, 0, "NemoS 3.0 | File: %s | Word Count: %d | Line: %d | Column: %d |Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
             attroff(COLOR_PAIR(2));
 
             // Place the cursor in the correct position
