@@ -340,10 +340,6 @@ private:
     }
 
 
-
-
-
-
     void drawMessage(const std::string &message) {
         attron(COLOR_PAIR(2));
         mvprintw(LINES - 2, 0, "%s", message.c_str());
