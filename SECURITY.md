@@ -1,14 +1,17 @@
 # Security Policy
 
 ## Supported Versions
-Check mark = Supported.
-No check mark = End of Life. 
+Red circle = Still in Alpha. - You may face problems using it. <br>
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 2       | :white_check_mark: |
-| 1       |                    |
-| ALPHA   |                    |
+Check mark = Supported. <br>
+No check mark = End of Life. <br>
+
+| Version     | Supported          |
+| -------     | ------------------ |
+| 3.0.0-alpha | :red_circle:       |
+| 2           | :white_check_mark: |
+| 1           |                    |
+| ALPHA       |                    |
 
 
 
