@@ -112,8 +112,9 @@ private:
         mvprintw(9,1,  "Ctrl+V: Paste text");
         mvprintw(10,1,  "Ctrl+Z: Undo changes");
         mvprintw(11,1,   "Ctrl+Y: Redo changes");
-        mvprintw(12, 1, "Ctrl+X: Exit editor");
-        mvprintw(13, 1, "Press any key to return to the editor...");
+        mvprintw(12,1, "Ctrl+P: Print Document"); // This will use a Linux terminal application known as lpr.
+        mvprintw(13, 1, "Ctrl+X: Exit editor");
+        mvprintw(14, 1, "Press any key to return to the editor...");
 
         attroff(COLOR_PAIR(3));
         getch();
@@ -139,6 +140,26 @@ private:
             refresh();
         }
     }
+    
+    // This is the printing function - For printing documents. :)
+    void printFile(const std::string &filename){
+        std::ofstream tempFile("temp.txt");
+        for (const auto& line : content){
+            tempFile << line << "\n";
+        }
+        tempFile.close();
+        int result = system("lpr temp.txt");
+        if (result == 0) {
+            drawMessage("Document sent to printer.");
+        } else {
+            drawMessage("Failed to send document to printer.");
+        }
+
+        // Optionally, remove the temporary file after printing
+        std::remove("temp.txt");
+
+        }
+
 
         //This function will display the word count to the taskbar the the bottom. 
     int countWords(const std::string& text) {
@@ -161,6 +182,7 @@ private:
         }
         return count;
     }*/
+    
     void drawEditor(std::string &filename) {
         bool running = true;
         int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
@@ -280,7 +302,24 @@ private:
                     }
                     break;
                 case 3: // The case 3 will be used to add the control C support - Will allow for copying text.
-                    drawMessage("Control-C is working! :)");
+                    if (!content.empty() && cursorY < content.size()) {
+                        std::string textToCopy = content[cursorY]; // Copy the current line
+                        FILE *clipboard = popen("xclip -i -selection clipboard", "w");
+                        if (clipboard) {
+                            fputs(textToCopy.c_str(), clipboard); // Write the line to clipboard
+                            pclose(clipboard);
+                            drawMessage("Text copied to clipboard! :)");
+                        } else {
+                            drawMessage("Error 2: Install XClip to copy text.");
+                        }
+                    }                    
+                    
+                    break;
+                case 16:
+                    printFile(filename);
+
+                    // This small code for testing. :)
+                    //drawMessage("It works");
                     break;
 
                 default:
