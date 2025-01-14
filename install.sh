@@ -14,13 +14,13 @@ if [[ ! -f "nemos" ]]; then
   exit 1
 fi
 # Installing xclip
-sudo apt install xclip
-sudo packman -S install xclip
-sudo dnf install xclip
-sudo zypper install xclip
-sudo xbps-install -S xclip
-sudo apk add xclip
-sudo emerge xclip
+sudo apt install xclip lpr
+sudo packman -S install xclip lpr
+sudo dnf install xclip lpr
+sudo zypper install xclip lpr
+sudo xbps-install -S xclip lpr
+sudo apk add xclip lpr
+sudo emerge xclip lpr
 
 echo "If the install for xclip is not working and dont have it installed. Please look online installing xclip for your distrobution!"
 # Copy the binary to /usr/local/bin
