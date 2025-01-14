@@ -22,7 +22,7 @@ sudo xbps-install -S xclip lpr
 sudo apk add xclip lpr
 sudo emerge xclip lpr
 
-echo "If the install for xclip is not working and dont have it installed. Please look online installing xclip for your distrobution!"
+echo "If the install for xclip and lpr is not working and dont have it installed. Please look online installing xclip and lpr for your distribution!"
 # Copy the binary to /usr/local/bin
 cp nemos /usr/local/bin/
 chmod +x /usr/local/bin/nemos
