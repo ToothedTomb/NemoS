@@ -33,7 +33,7 @@ SOFTWARE.
 #include <stack>
 #include <sstream>
 #include <cstdlib> // Allow me to use the paste feature.
-
+#include <cstring>
 
 class NemoS {
 public:
@@ -113,9 +113,10 @@ private:
         mvprintw(10,1,  "Ctrl+Z: Undo changes");
         mvprintw(11,1,   "Ctrl+Y: Redo changes");
         mvprintw(12,1, "Ctrl+F: Find text");
-        mvprintw(13,1, "Ctrl+P: Print document"); // This will use a Linux terminal application known as lpr.
-        mvprintw(14, 1, "Ctrl+X: Exit editor");
-        mvprintw(15, 1, "Press any key to return to the editor...");
+        mvprintw(13,1, "Ctrl+K: Replace text");
+        mvprintw(14,1, "Ctrl+P: Print document"); // This will use a Linux terminal application known as lpr.
+        mvprintw(15, 1, "Ctrl+X: Exit editor");
+        mvprintw(16, 1, "Press any key to return to the editor...");
 
         attroff(COLOR_PAIR(3));
         getch();
@@ -199,16 +200,37 @@ private:
         getch();
     }
 
+    // This function is very good as it will allow you to replace text - Useful when it comes to programming...
+    void Replace(){
+        drawMessage("Enter text to find: ");
+        echo();
+        char searchStr[256];
+        getstr(searchStr);
+        noecho();
 
-    /*int countWords(const std::string& text) {
-        std::istringstream stream(text);
-        std::string word;
-        int count = 0;
-        while (stream >> word) {
-            count++;
+        drawMessage("Enter text to replace: ");
+        echo();
+        char replaceStr[256];
+        getstr(replaceStr);
+        noecho();
+
+
+        bool replaced = false;
+        for (size_t i = 0; i < content.size(); ++i){
+            size_t pos = content[i].find(searchStr);
+            if (pos != std::string::npos){
+                content[i].replace(pos, strlen(searchStr), replaceStr);
+                replaced = true;
+            }
         }
-        return count;
-    }*/
+        if (replaced){
+            drawMessage("Text has been replaced. :)");
+        }
+        else {
+            drawMessage("Error: Text has not been found. :(");
+        }
+        getch();
+    }
     
     void drawEditor(std::string &filename) {
         bool running = true;
@@ -272,6 +294,7 @@ private:
                 case 6: //Ctrl + F
                     find();
                     break;
+
                 case '\n': // Enter key
                 pushUndo();
                     content.insert(content.begin() + cursorY + 1, content[cursorY].substr(cursorX));
@@ -316,6 +339,9 @@ private:
                     break;
                 case 8: // Ctrl+H (Help)
                     drawHelp();
+                    break;
+                case 11: // Control K
+                    Replace();
                     break;
                 //The case 22 will be ctrl V that will allow for pasting text into the application.
                 case 22: { // Ctrl+V
