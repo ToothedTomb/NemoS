@@ -93,9 +93,9 @@ private:
         // Rename the file
         if (std::rename(filename.c_str(), newFilename) == 0) {
             filename = newFilename;
-            drawMessage("File has been renamed. :)!");
+            drawMessage("File has been renamed!. :)");
         } else {
-            drawMessage("Error: Failed to be renamed. Try again. :(");
+            drawMessage("Error: Failed to be renamed! :(");
         }
     }
 
@@ -112,9 +112,10 @@ private:
         mvprintw(9,1,  "Ctrl+V: Paste text");
         mvprintw(10,1,  "Ctrl+Z: Undo changes");
         mvprintw(11,1,   "Ctrl+Y: Redo changes");
-        mvprintw(12,1, "Ctrl+P: Print Document"); // This will use a Linux terminal application known as lpr.
-        mvprintw(13, 1, "Ctrl+X: Exit editor");
-        mvprintw(14, 1, "Press any key to return to the editor...");
+        mvprintw(12,1, "Ctrl+F: Find text");
+        mvprintw(13,1, "Ctrl+P: Print document"); // This will use a Linux terminal application known as lpr.
+        mvprintw(14, 1, "Ctrl+X: Exit editor");
+        mvprintw(15, 1, "Press any key to return to the editor...");
 
         attroff(COLOR_PAIR(3));
         getch();
@@ -170,6 +171,32 @@ private:
                 count++;
             }
             return count;
+    }
+
+    void find(){ //This function will see if your text you enter is found in the text editor for the opened file. :) 
+        drawMessage("Enter text to find: ");
+        echo();
+        char searchStr[256];
+        getstr(searchStr);
+        noecho();
+
+        bool found = false;
+
+        for (size_t i =0; i < content.size(); ++i){
+            size_t pos = content[i].find(searchStr);
+            if (pos != std::string::npos){
+                cursorY = i;
+                cursorX = pos;
+                found = true;
+                break;
+            }
+        }
+        if (found){
+            drawMessage("Text has been found! :)");
+        } else {
+            drawMessage("Error: Text has not been found! :(");
+        }
+        getch();
     }
 
 
@@ -242,6 +269,9 @@ private:
                     if (cursorX < content[cursorY].size()) cursorX++;
                     if (cursorX >= viewX + COLS - 1) viewX++; // Scroll right
                     break;
+                case 6: //Ctrl + F
+                    find();
+                    break;
                 case '\n': // Enter key
                 pushUndo();
                     content.insert(content.begin() + cursorY + 1, content[cursorY].substr(cursorX));
@@ -268,7 +298,7 @@ private:
                     break;
                 case 19: // Ctrl+S (Save)
                     saveFile(filename);
-                    drawMessage("File has been saved :)!");
+                    drawMessage("File has been saved! :)");
                     break;
                 case '\t': // Allow the tab key to work correctly. 
                     pushUndo();
