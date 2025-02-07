@@ -288,24 +288,35 @@ private:
                     drawHelp();
                     break;
                 //The case 22 will be ctrl V that will allow for pasting text into the application.
-                case 22:
+                case 22: { // Ctrl+V
                     pushUndo();
-                    if (clipboard){
+                    if (clipboard) {
                         char buffer[256];
                         std::string clipboardText;
-                        while (fgets(buffer, sizeof(buffer), clipboard)){
+                        while (fgets(buffer, sizeof(buffer), clipboard)) {
                             clipboardText += buffer;
                         }
                         pclose(clipboard);
 
-
-
-                        content[cursorY].insert(cursorX,clipboardText);
-                        cursorX += clipboardText.size();
-                    } else{
-                        drawMessage("Error 2: Install XClip to paste text.");
+                        // Handle pasting with newlines properly
+                        size_t pos = clipboardText.find('\n');
+                        if (pos != std::string::npos) {
+                            std::string beforeCursor = content[cursorY].substr(0, cursorX);
+                            std::string afterCursor = content[cursorY].substr(cursorX);
+                            content[cursorY] = beforeCursor + clipboardText.substr(0, pos);
+                            content.insert(content.begin() + cursorY + 1, clipboardText.substr(pos + 1) + afterCursor);
+                            cursorY++;
+                            cursorX = 0;
+                        } else {
+                            content[cursorY].insert(cursorX, clipboardText);
+                            cursorX += clipboardText.size();
+                        }
+                    } else {
+                        drawMessage("Clipboard empty or error retrieving data.");
                     }
                     break;
+                }
+
                 case 3: // The case 3 will be used to add the control C support - Will allow for copying text.
                     if (!content.empty() && cursorY < content.size()) {
                         std::string textToCopy = content[cursorY]; // Copy the current line
