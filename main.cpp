@@ -270,6 +270,11 @@ private:
                     saveFile(filename);
                     drawMessage("File has been saved :)!");
                     break;
+                case '\t': // Allow the tab key to work correctly. 
+                    pushUndo();
+                    content[cursorY].insert(cursorX, "    ");
+                    cursorX += 4;
+                    break;
                 case 18: // Ctrl+R (Rename)
                     renameFile(filename);
                     break;
