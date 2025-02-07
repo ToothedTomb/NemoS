@@ -297,7 +297,13 @@ private:
                             clipboardText += buffer;
                         }
                         pclose(clipboard);
-
+                        // This will allow me to paste paragraphs into the text editor
+                        std::istringstream stream(clipboardText);
+                        std::vector<std::string> lines;
+                        std::string line;
+                        while (std::getline(stream,line)){
+                            lines.push_back(line);
+                        }
                         // Handle pasting with newlines properly
                         size_t pos = clipboardText.find('\n');
                         if (pos != std::string::npos) {
