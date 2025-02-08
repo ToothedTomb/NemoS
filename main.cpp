@@ -34,6 +34,10 @@ SOFTWARE.
 #include <sstream>
 #include <cstdlib> // Allow me to use the paste feature.
 #include <cstring>
+#include <iomanip>
+#include <string>
+#include <ctime> // Will help display the time at the bottom.
+
 
 class NemoS {
 public:
@@ -83,6 +87,15 @@ private:
         }
     }
 
+    std::string getCurrentTime(){
+        time_t now = time(0); //Getting the current time.
+        struct tm tstruct;
+        char buf[80];
+        tstruct = *localtime(&now); //convert the local time
+        strftime(buf, sizeof(buf),"%H:%M:%S", &tstruct);
+        return std::string(buf);
+    }
+
     void renameFile(std::string &filename) {
         drawMessage("Enter new filename: ");
         echo();
@@ -98,6 +111,14 @@ private:
             drawMessage("Error: Failed to be renamed! :(");
         }
     }
+    std::string Date() {
+        std::time_t t = std::time(nullptr);
+        std::tm tm = *std::localtime(&t);
+        std::ostringstream oss;
+        oss << std::put_time(&tm, "%d-%m-%Y");  // Day month Year will be displayed as normal.
+        return oss.str();  // Return the formatted date as a string
+    }
+
 
     void drawHelp() {
         clear();
@@ -114,9 +135,11 @@ private:
         mvprintw(11,1,   "Ctrl+Y: Redo changes");
         mvprintw(12,1, "Ctrl+F: Find text");
         mvprintw(13,1, "Ctrl+K: Replace text");
-        mvprintw(14,1, "Ctrl+P: Print document"); // This will use a Linux terminal application known as lpr.
-        mvprintw(15, 1, "Ctrl+X: Exit editor");
-        mvprintw(16, 1, "Press any key to return to the editor...");
+        mvprintw(14,1, "Ctrl+D: Show date");
+        mvprintw(15,1, "Ctrl+T: Show time");
+        mvprintw(16,1, "Ctrl+P: Print document"); // This will use a Linux terminal application known as lpr.
+        mvprintw(17, 1, "Ctrl+X: Exit editor");
+        mvprintw(18, 1, "Press any key to return to the editor...");
 
         attroff(COLOR_PAIR(3));
         getch();
@@ -294,6 +317,9 @@ private:
                 case 6: //Ctrl + F
                     find();
                     break;
+                case 20: // Ctrl + T
+                    drawMessage("The time is: " +  getCurrentTime());
+                    break;
 
                 case '\n': // Enter key
                 pushUndo();
@@ -392,6 +418,9 @@ private:
                         }
                     }                    
                     
+                    break;
+                case 4:
+                    drawMessage("The date is: " + Date());
                     break;
                 case 16:
                     printFile(filename);
