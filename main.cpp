@@ -123,8 +123,8 @@ private:
     void drawHelp() {
         clear();
         attron(COLOR_PAIR(3));
-        mvprintw(1, 1, "Help Menu for NemoS:");
-        mvprintw(3, 1, "Arrow Keys:  Navigate");
+        mvprintw(1, 1, "Help Menu for NemoS 3.0:");
+        mvprintw(3, 1, "Arrow Keys: Navigate");
         mvprintw(4, 1, "Enter: Insert new line");
         mvprintw(5, 1, "Backspace: Delete character");
         mvprintw(6, 1, "Ctrl+S: Save file");
