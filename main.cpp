@@ -307,7 +307,6 @@ private:
             // Place the cursor in the correct position
             move(cursorY - viewY, cursorX - viewX); // Adjust cursor position based on scroll
             refresh(); // Refresh the screen after updates
-            FILE *clipboard = popen("xclip -o -selection clipboard", "r");
 
             int ch = getch(); // Get user input
             switch (ch) {
@@ -383,40 +382,53 @@ private:
                     Replace();
                     break;
                 //The case 22 will be ctrl V that will allow for pasting text into the application.
-                case 22: { // Ctrl+V
+                case 22: { // Ctrl+V - Paste text from clipboard using xclip
                     pushUndo();
+                    FILE *clipboard = popen("xclip -o -selection clipboard", "r");
                     if (clipboard) {
                         char buffer[256];
                         std::string clipboardText;
+                        // Read all clipboard data
                         while (fgets(buffer, sizeof(buffer), clipboard)) {
                             clipboardText += buffer;
                         }
                         pclose(clipboard);
-                        // This will allow me to paste paragraphs into the text editor
-                        std::istringstream stream(clipboardText);
-                        std::vector<std::string> lines;
+                        
+                        if (clipboardText.empty()) {
+                            drawMessage("Clipboard is empty or no owner for the clipboard selection.");
+                            break;
+                        }
+                        
+                        // Split clipboardText into lines
+                        std::istringstream iss(clipboardText);
                         std::string line;
-                        while (std::getline(stream,line)){
+                        std::vector<std::string> lines;
+                        while (std::getline(iss, line)) {
                             lines.push_back(line);
                         }
-                        // Handle pasting with newlines properly
-                        size_t pos = clipboardText.find('\n');
-                        if (pos != std::string::npos) {
-                            std::string beforeCursor = content[cursorY].substr(0, cursorX);
-                            std::string afterCursor = content[cursorY].substr(cursorX);
-                            content[cursorY] = beforeCursor + clipboardText.substr(0, pos);
-                            content.insert(content.begin() + cursorY + 1, clipboardText.substr(pos + 1) + afterCursor);
-                            cursorY++;
-                            cursorX = 0;
-                        } else {
-                            content[cursorY].insert(cursorX, clipboardText);
-                            cursorX += clipboardText.size();
+                        
+                        // Insert the first line at the current cursor position
+                        std::string beforeCursor = content[cursorY].substr(0, cursorX);
+                        std::string afterCursor = content[cursorY].substr(cursorX);
+                        content[cursorY] = beforeCursor + lines[0];
+                        
+                        // Insert any subsequent lines as new lines in the editor
+                        for (size_t i = 1; i < lines.size(); ++i) {
+                            content.insert(content.begin() + cursorY + i, lines[i]);
                         }
+                        
+                        // Append the remaining part of the original line to the end of the last pasted line
+                        content[cursorY + lines.size() - 1] += afterCursor;
+                        
+                        // Update the cursor position to the end of the pasted text
+                        cursorY = cursorY + lines.size() - 1;
+                        cursorX = lines.back().size();
                     } else {
-                        drawMessage("Clipboard empty or error retrieving data.");
+                        drawMessage("Error: Clipboard empty or could not be accessed.");
                     }
                     break;
                 }
+
 
                 case 3: // The case 3 will be used to add the control C support - Will allow for copying text.
                     if (!content.empty() && cursorY < content.size()) {
