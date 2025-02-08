@@ -258,7 +258,6 @@ private:
     void drawEditor(std::string &filename) {
         bool running = true;
         int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
-
         while (running) {
             std::string fullText;
             for (const auto& line : content){
@@ -278,6 +277,20 @@ private:
                         attroff(COLOR_PAIR(1));
                     }
                 }
+                bool TextOffLeft = (viewX > 0);
+                bool TextOffRight = (i + viewY < content.size() && content[i + viewY].size() > viewX + COLS - 1);
+
+                if (TextOffLeft) {
+                    attron(COLOR_PAIR(3)); // Use a color pair for the arrow
+                    mvaddch(i, 0, '<');    // Draw the arrow at the left edge
+                    attroff(COLOR_PAIR(3));
+                }
+                if (TextOffRight){
+                    attron(COLOR_PAIR(3));
+                    mvaddch(i, COLS - 1, '>');                    
+                    attroff(COLOR_PAIR(3));
+                }
+
             }
 
             // Draw the status bar at the bottom
