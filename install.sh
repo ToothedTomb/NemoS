@@ -1,19 +1,18 @@
 #!/bin/bash
-
-# Script to install NemoS
-
-# Ensure the script is being run with root privileges
+# Script to install NemoS on Linux.
+# Please run this script in the Terminal application.
+# Ensure the script is being run with root privileges.
 if [[ $EUID -ne 0 ]]; then
-  echo "Error 1: This script must be run as root." >&2
+  echo "Error: This script must be run as root." >&2
   exit 1
 fi
 
-# Check if the binary exists
+# Check if the binary exists.
 if [[ ! -f "nemos" ]]; then
-  echo "Error: 'nemos' binary not found in the current directory. Please compile the program first." >&2
+  echo "Error: 'nemos' binary not found in the current directory. Please download the binary." >&2
   exit 1
 fi
-# Installing xclip
+# Installing xclip and lpr.
 sudo apt install xclip lpr
 sudo packman -S install xclip lpr
 sudo dnf install xclip lpr
@@ -29,4 +28,4 @@ chmod +x /usr/local/bin/nemos
 
 # Notify the user of successful installation
 echo "NemoS has been installed successfully!"
-echo "You can now run it from any directory using the command: nemos"
+echo "You can now run it from any directory using the command: 'nemos' or 'nemos file.txt'." 
