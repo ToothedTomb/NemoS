@@ -26,6 +26,7 @@ SOFTWARE.
 
 // It is required when you want to paste text into the application. 
 #include <ncurses.h>
+#include <thread>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -94,6 +95,16 @@ private:
         tstruct = *localtime(&now); //convert the local time
         strftime(buf, sizeof(buf),"%H:%M:%S", &tstruct);
         return std::string(buf);
+    }
+    void LiveTime(){
+        while (true){
+            std::string timeStr = getCurrentTime();
+            attron(COLOR_PAIR(2));
+            //mvprintw(LINES - 1, COLS - 10, "%s", timeStr.c_str());
+            attroff(COLOR_PAIR(2));
+            refresh();
+            napms(1000); // Wait 1 second before updating time        
+            }
     }
 
     void renameFile(std::string &filename) {
@@ -258,6 +269,7 @@ private:
     void drawEditor(std::string &filename) {
         bool running = true;
         int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
+        //std::thread timeThread(&NemoS::LiveTime, this);  // Pass 'this' to use the member function        timeThread.detach();
         while (running) {
             std::string fullText;
             for (const auto& line : content){
@@ -330,7 +342,22 @@ private:
                     find();
                     break;
                 case 20: // Ctrl + T
-                    drawMessage("The time is: " +  getCurrentTime());
+                    timeout(0);
+                    while(true){
+                        std::string timeStr = getCurrentTime();
+                        attron(COLOR_PAIR(2));
+                        //mvprintw(LINES - 1, COLS - 10, "%s", timeStr.c_str());
+                        drawMessage("The time is: " +  getCurrentTime());
+                        attroff(COLOR_PAIR(2));
+                        refresh();
+                        napms(1000); // Wait 1 second before updating time        
+
+                    
+                        if (getch() !=ERR){
+                            break;
+                        }
+                    }
+                    timeout(-1);
                     break;
 
                 case '\n': // Enter key
