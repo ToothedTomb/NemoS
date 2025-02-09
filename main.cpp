@@ -166,6 +166,9 @@ private:
             content = undoStack.top(); // Restore previous content from undo stack
             undoStack.pop();
             refresh();
+        } 
+        else {
+            drawMessage("Error: There is nothing to undo! :(");
         }
     }
     void redo() {
@@ -174,6 +177,9 @@ private:
             content = redoStack.top(); // Restore content from redo stack
             redoStack.pop();
             refresh();
+        }else 
+        {
+            drawMessage("Error: There is nothing to redo! :(");
         }
     }
     
