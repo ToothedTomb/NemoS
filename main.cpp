@@ -289,7 +289,9 @@ private:
                         attroff(COLOR_PAIR(1));
                     }
                 }
-                bool TextOffLeft = (viewX > 0);
+                bool lineExists = (i + viewY < content.size());
+                bool lineHasText = lineExists && (content[i + viewY].find_first_not_of(" \t\n\r") != std::string::npos); // Check if line has non-space characters
+                bool TextOffLeft = (viewX > 0 && lineHasText);
                 bool TextOffRight = (i + viewY < content.size() && content[i + viewY].size() > viewX + COLS - 1);
 
                 if (TextOffLeft) {
