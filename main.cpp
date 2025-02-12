@@ -281,20 +281,42 @@ private:
             for (const auto& line : content){
                 fullText += line + " ";
             }
-            int wordCount = countWords(fullText);
-            // Draw the editor content
-            for (int i = 0; i < LINES - 1; ++i) { // Leave the last line for the status bar
-                move(i, 0);
-                clrtoeol(); // Clear the line before redrawing
 
-                if (i + viewY < content.size()) {
-                    std::string line = content[i + viewY];
-                    if (viewX < line.size()) {
-                        attron(COLOR_PAIR(1));
-                        mvprintw(i, 0, "%s", line.substr(viewX, COLS - 1).c_str());
-                        attroff(COLOR_PAIR(1));
-                    }
+            int wordCount = countWords(fullText);
+            //clear();
+            // Draw the editor content
+            for (int i = 0; i < LINES - 1; ++i) {
+                move(i, 0);
+                //clrtoeol();
+                int lineIndex = i + viewY; // The actual index in the content vector
+
+            if (lineIndex < content.size()) {
+                std::string line = content[lineIndex];
+
+                int availableLength = line.size();
+                int charsToPrint = std::min(availableLength, COLS - 1);
+                int startPos = 0;
+
+                if (lineIndex == cursorY) { // Current line
+                    availableLength -= viewX;
+                    charsToPrint = std::min(availableLength, COLS - 1);
+                    startPos = viewX;
+
+                    attron(COLOR_PAIR(1));
+                    mvprintw(i, 0, "%s", line.substr(startPos, charsToPrint).c_str());
+                    attroff(COLOR_PAIR(1));
+                    clrtoeol(); 
+                } else { // Other lines
+                    // ***CRITICAL FIX***: Move the cursor to the beginning of the line *before* printing!
+                    move(i, 0); // Essential!
+
+                    mvprintw(i, 0, "%s", line.substr(0, charsToPrint).c_str());
+                    clrtoeol();
                 }
+            } else {
+                clrtoeol(); // Clear any remaining content on empty lines
+            }
+                
                 bool lineExists = (i + viewY < content.size());
                 bool lineHasText = lineExists && (content[i + viewY].find_first_not_of(" \t\n\r") != std::string::npos); // Check if line has non-space characters
                 bool TextOffLeft = (viewX > 0 && lineHasText);
@@ -323,28 +345,51 @@ private:
 
             mvprintw(LINES - 1, 0, "NemoS 3.0 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
             attroff(COLOR_PAIR(2));
-
+            cursorX = std::min(cursorX, (int)content[cursorY].size());
+            cursorY = std::min(cursorY, (int)content.size() -1);
             // Place the cursor in the correct position
             move(cursorY - viewY, cursorX - viewX); // Adjust cursor position based on scroll
             refresh(); // Refresh the screen after updates
-
+            int height,width;
+            getmaxyx(stdscr, height,width);
             int ch = getch(); // Get user input
             switch (ch) {
                 case KEY_UP:
-                    if (cursorY > 0) cursorY--;
-                    if (cursorY < viewY) viewY--; // Scroll up
+                    if (cursorY > 0) {
+                        cursorY--;
+                        viewX = 0; // Reset viewX when moving up
+                        if (cursorY < viewY) viewY--; // Scroll up if needed
+                    }
                     break;
+
                 case KEY_DOWN:
-                    if (cursorY < content.size() - 1) cursorY++;
-                    if (cursorY >= viewY + LINES - 2) viewY++; // Scroll down
+                    if (cursorY < content.size() - 1) {
+                        cursorY++;
+                        if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 1; // Scroll down if needed
+                        viewX = 0;                    
+                    }
                     break;
                 case KEY_LEFT:
-                    if (cursorX > 0) cursorX--;
-                    if (cursorX < viewX) viewX--; // Scroll left
+                    if (cursorX > 0) {
+                        cursorX--;
+                    } else if (cursorY > 0) { // Move to end of previous line
+                        cursorY--;
+                        cursorX = content[cursorY].size(); // End of previous line
+                        //Handle scrolling up if needed
+                        if (cursorY < viewY) viewY = cursorY;
+                    }
+                    if (cursorX < viewX) viewX = cursorX;
                     break;
                 case KEY_RIGHT:
-                    if (cursorX < content[cursorY].size()) cursorX++;
-                    if (cursorX >= viewX + COLS - 1) viewX++; // Scroll right
+                    if (cursorX < content[cursorY].size()) {
+                        cursorX++;
+                    } else if (cursorY < content.size() - 1) { // Move to beginning of next line
+                        cursorY++;
+                        cursorX = 0; // Beginning of next line
+                        //Handle scrolling down if needed
+                        if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 1;
+                    }
+                    if (cursorX >= viewX + COLS - 1) viewX = cursorX - COLS + 1;              
                     break;
                 case 6: //Ctrl + F
                     find();
@@ -369,11 +414,14 @@ private:
                     break;
 
                 case '\n': // Enter key
-                pushUndo();
+                    pushUndo();
                     content.insert(content.begin() + cursorY + 1, content[cursorY].substr(cursorX));
                     content[cursorY] = content[cursorY].substr(0, cursorX);
                     cursorY++;
                     cursorX = 0;
+
+                    viewX = 0; // Reset viewX after inserting a new line
+                    if (cursorY >= viewY + LINES - 1) viewY++; // Scroll down if needed
                     break;
                 case KEY_BACKSPACE:
                 case 127:
@@ -499,10 +547,13 @@ private:
                     if (cursorY >= viewY + LINES - 2) viewY++; // Scroll vertically if typing creates new lines
                     break;
             }
-
+            refresh();
             // Ensure the cursor doesn't go out of bounds
-            if (cursorX > content[cursorY].size()) cursorX = content[cursorY].size();
-            if (cursorY >= content.size()) cursorY = content.size() - 1;
+            cursorX = std::min(cursorX, (int)content[cursorY].size());
+            cursorY = std::min(cursorY, (int)content.size() - 1);
+
+            //if (cursorX > content[cursorY].size()) cursorX = content[cursorY].size();
+            //if (cursorY >= content.size()) cursorY = content.size() - 1;
         }
     }
 
