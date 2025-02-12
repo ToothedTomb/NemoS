@@ -298,14 +298,22 @@ private:
                 int startPos = 0;
 
                 if (lineIndex == cursorY) { // Current line
+                    bool TextOffLeft = false;
                     availableLength -= viewX;
                     charsToPrint = std::min(availableLength, COLS - 1);
                     startPos = viewX;
+                    std::string visibleLine = line.substr(startPos, charsToPrint); // Create the visible line
 
+                    TextOffLeft = (viewX > 0 && visibleLine.find_first_not_of(" \t\n\r") != std::string::npos); // Use visibleLine's size
                     attron(COLOR_PAIR(1));
                     mvprintw(i, 0, "%s", line.substr(startPos, charsToPrint).c_str());
                     attroff(COLOR_PAIR(1));
                     clrtoeol(); 
+                    if (TextOffLeft) {
+                        attron(COLOR_PAIR(3)); // Use a color pair for the arrow
+                        mvaddch(i, 0, '<');    // Draw the arrow at the left edge
+                        attroff(COLOR_PAIR(3));
+                    }
                 } else { // Other lines
                     // ***CRITICAL FIX***: Move the cursor to the beginning of the line *before* printing!
                     move(i, 0); // Essential!
@@ -319,14 +327,9 @@ private:
                 
                 bool lineExists = (i + viewY < content.size());
                 bool lineHasText = lineExists && (content[i + viewY].find_first_not_of(" \t\n\r") != std::string::npos); // Check if line has non-space characters
-                bool TextOffLeft = (viewX > 0 && lineHasText);
+                //bool TextOffLeft = (viewX > 0 && lineHasText);
                 bool TextOffRight = (i + viewY < content.size() && content[i + viewY].size() > viewX + COLS - 1);
 
-                if (TextOffLeft) {
-                    attron(COLOR_PAIR(3)); // Use a color pair for the arrow
-                    mvaddch(i, 0, '<');    // Draw the arrow at the left edge
-                    attroff(COLOR_PAIR(3));
-                }
                 if (TextOffRight){
                     attron(COLOR_PAIR(3));
                     mvaddch(i, COLS - 1, '>');                    
