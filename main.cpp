@@ -302,6 +302,9 @@ private:
                     availableLength -= viewX;
                     charsToPrint = std::min(availableLength, COLS - 1);
                     startPos = viewX;
+                    if (startPos >= line.size()){
+                        startPos = line.size() > 0 ? line.size() -1 : 0;
+                    }
                     std::string visibleLine = line.substr(startPos, charsToPrint); // Create the visible line
 
                     TextOffLeft = (viewX > 0 && visibleLine.find_first_not_of(" \t\n\r") != std::string::npos); // Use visibleLine's size
