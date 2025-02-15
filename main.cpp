@@ -372,12 +372,14 @@ private:
             move(cursorY - viewY, cursorX - viewX); // Adjust cursor position based on scroll
             refresh(); // Refresh the screen after updates
             int height,width;
-            getmaxyx(stdscr, height,width);
+            int visiblewidth = COLS -1;
+            int maxX = std::max(0, (int)content[cursorY].size() - visiblewidth); // Correct maxX            getmaxyx(stdscr, height,width);
             int ch = getch(); // Get user input
             switch (ch) {
                 case KEY_UP:
                     if (cursorY > 0) {
                         cursorY--;
+                        cursorX = 0;
                         viewX = 0; // Reset viewX when moving up
                         if (cursorY < viewY) viewY--; // Scroll up if needed
                     }
@@ -386,31 +388,49 @@ private:
                 case KEY_DOWN:
                     if (cursorY < content.size() - 1) {
                         cursorY++;
+                        cursorX = 0;
+                        viewX = 0;
                         if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 1; // Scroll down if needed
-                        viewX = 0;                    
+                                            
                     }
                     break;
                 case KEY_LEFT:
                     if (cursorX > 0) {
                         cursorX--;
+                        visiblewidth;
+                        if (cursorX < viewX){
+                            viewX = cursorX; // Scroll left if the cursor goes off the screen...
+
+                        }
                     } else if (cursorY > 0) { // Move to end of previous line
                         cursorY--;
                         cursorX = content[cursorY].size(); // End of previous line
+                        visiblewidth;
+                        viewX = maxX;
+                        viewX = std::min(maxX, (int)content[cursorY].size() - visiblewidth);
                         //Handle scrolling up if needed
-                        if (cursorY < viewY) viewY = cursorY;
+                        if (cursorY < viewY) 
+                        {
+                            viewY = cursorY;
+                        
+                        }
                     }
                     if (cursorX < viewX) viewX = cursorX;
                     break;
                 case KEY_RIGHT:
                     if (cursorX < content[cursorY].size()) {
                         cursorX++;
-                    } else if (cursorY < content.size() - 1) { // Move to beginning of next line
-                        cursorY++;
-                        cursorX = 0; // Beginning of next line
-                        //Handle scrolling down if needed
-                        if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 1;
+
+                        // *** The crucial fix: ***
+                        int visibleWidth = COLS - 1; // Or adjust as needed for borders/etc.
+                        if (cursorX >= viewX + visibleWidth) {
+                            viewX = cursorX - visibleWidth + 1; // Scroll right
+                        }
+                    } else if (cursorY < content.size() - 1) { // Check for next line
+                            cursorY++;        // Move to the next line
+                            cursorX = 0;        // Start at the beginning of the next line
+                            viewX = 0;        // Reset horizontal view
                     }
-                    if (cursorX >= viewX + COLS - 1) viewX = cursorX - COLS + 1;              
                     break;
                 case 6: //Ctrl + F
                     find();
