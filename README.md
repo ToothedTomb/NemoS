@@ -13,22 +13,54 @@ nemos txt.txt - Will use the file or create a new one if txt.txt does not exist.
 
 
 # Instuctions:
- Arrow Keys: Navigate 
- Enter: Insert new line 
- Backspace: Delete character 
- Ctrl+S: Save file 
+
+ Arrow Keys: Navigate
+ 
+ Enter: Insert new line
+ 
+ Backspace: Delete character
+ 
+ Ctrl+S: Save file
+ 
  Ctrl+R: Rename file
+ 
+ Ctrl+C: Copy text
+ 
+ Ctrl+V: Paste text
+ 
+ Ctrl+Z: Undo changes
+ 
+ Ctrl+Y: Redo changes
+ 
+ Ctrl+F: Find text
+ 
+ Ctrl+K: Replace text
+ 
+ Ctrl+D: Show date
+ 
+ Ctrl+T: Show time
+ 
+ Ctrl+P: Print document
+ 
  Ctrl+X: Exit editor
+
  
  
 # Screenshots:
 
-![Screenshot From 2025-01-10 22-01-23](https://github.com/user-attachments/assets/d4c91337-ab96-44ae-a3c4-0a2420d767fd)
-
-![Screenshot From 2025-01-10 22-02-13](https://github.com/user-attachments/assets/6b6bcd53-76bc-4191-b9b2-0754face7f59)
+![Screenshot From 2025-02-15 17-47-56](https://github.com/user-attachments/assets/436f149a-1662-4110-820a-a4ed38982692)
 
 
-# Compile:
+![Screenshot From 2025-02-15 17-48-07](https://github.com/user-attachments/assets/90a8d587-5ab9-412f-acc4-05087c80b3b8)
+
+
+![Screenshot From 2025-02-15 17-48-17](https://github.com/user-attachments/assets/b5d65fba-9150-4d71-8b5a-785fc62711cb)
+
+
+# Compile the code:
 
 g++ main.cpp -o nemos -lncurses
+
+# Download the latest stable version:
+https://github.com/ToothedTomb/NemoS/releases/tag/3.0.0
 
