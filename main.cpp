@@ -409,6 +409,11 @@ private:
                         viewX = maxX;
                         viewX = std::min(maxX, (int)content[cursorY].size() - visiblewidth);
                         //Handle scrolling up if needed
+                        if (cursorX < viewX){
+                            viewX = cursorX;
+                        }else if (cursorX >= viewX + visiblewidth){
+                            viewX = cursorX - visiblewidth + 1;
+                        }
                         if (cursorY < viewY) 
                         {
                             viewY = cursorY;
