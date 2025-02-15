@@ -7,7 +7,7 @@ Empty = End of Life. <br>
 
 | Version     | Supported          |
 | -------     | ------------------ |
-| 4.0.0-alpha | :red-circle:       |       
+| 4.0.0-alpha | :red_circle:       |       
 | 3.0.0       | :white_check_mark: |
 | 3.0.0-beta  |                    |
 | 3.0.0-alpha |                    |
