@@ -38,6 +38,10 @@ SOFTWARE.
 #include <iomanip>
 #include <string>
 #include <ctime> // Will help display the time at the bottom.
+#include <cctype>
+#include <algorithm>
+
+
 
 
 class NemoS {
@@ -208,9 +212,20 @@ private:
             std::istringstream stream(text);
             std::string word;
             int count = 0;
+            int totalWords = 0;
+
+            
             while (stream >> word) {
-                count++;
+                //count++; The code below will make it ignore punctionation meaning !, . and ? as those are not words.
+                word.erase(std::remove_if(word.begin(), word.end(), ::ispunct), word.end());
+
+
+
+                if (!word.empty()){
+                    count++; 
+                }
             }
+
             return count;
     }
 
