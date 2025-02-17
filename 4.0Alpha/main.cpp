@@ -409,31 +409,22 @@ private:
                 case KEY_LEFT:
                     if (cursorX > 0) {
                         cursorX--;
-                        visiblewidth;
-                        if (cursorX < viewX){
-                            viewX = cursorX; // Scroll left if the cursor goes off the screen...
-
+                        if (cursorX < viewX) {
+                            viewX = cursorX; // Scroll left
                         }
-                    } else if (cursorY > 0) { // Move to end of previous line
+                    } else if (cursorY > 0) {
                         cursorY--;
                         cursorX = content[cursorY].size(); // End of previous line
-                        visiblewidth;
-                        viewX = maxX;
-                        viewX = std::min(maxX, (int)content[cursorY].size() - visiblewidth);
-                        //Handle scrolling up if needed
-                        if (cursorX < viewX){
-                            viewX = cursorX;
-                        }else if (cursorX >= viewX + visiblewidth){
-                            viewX = cursorX - visiblewidth + 1;
-                        }
-                        if (cursorY < viewY) 
-                        {
-                            viewY = cursorY;
-                        
+
+                        int visibleWidth = COLS - 1; // Get visible width
+                        viewX = std::max(0, (int)content[cursorY].size() - visibleWidth); // Correct viewX
+
+                        if (cursorY < viewY) {
+                            viewY = cursorY; // Scroll up if needed
                         }
                     }
-                    if (cursorX < viewX) viewX = cursorX;
                     break;
+
                 case KEY_RIGHT:
                     if (cursorX < content[cursorY].size()) {
                         cursorX++;
