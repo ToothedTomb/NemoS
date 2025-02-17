@@ -138,7 +138,7 @@ private:
     void drawHelp() {
         clear();
         attron(COLOR_PAIR(3));
-        mvprintw(1, 1, "Help Menu for NemoS 3.0:");
+        mvprintw(1, 1, "Help Menu for NemoS 3.1:");
         mvprintw(3, 1, "Arrow Keys: Navigate");
         mvprintw(4, 1, "Enter: Insert new line");
         mvprintw(5, 1, "Backspace: Delete character");
@@ -364,7 +364,7 @@ private:
 
 
 
-            mvprintw(LINES - 1, 0, "NemoS 3.0 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
+            mvprintw(LINES - 1, 0, "NemoS 3.1 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
             attroff(COLOR_PAIR(2));
             cursorX = std::min(cursorX, (int)content[cursorY].size());
             cursorY = std::min(cursorY, (int)content.size() -1);
@@ -397,31 +397,22 @@ private:
                 case KEY_LEFT:
                     if (cursorX > 0) {
                         cursorX--;
-                        visiblewidth;
-                        if (cursorX < viewX){
-                            viewX = cursorX; // Scroll left if the cursor goes off the screen...
-
+                        if (cursorX < viewX) {
+                            viewX = cursorX; // Scroll left
                         }
-                    } else if (cursorY > 0) { // Move to end of previous line
+                    } else if (cursorY > 0) {
                         cursorY--;
                         cursorX = content[cursorY].size(); // End of previous line
-                        visiblewidth;
-                        viewX = maxX;
-                        viewX = std::min(maxX, (int)content[cursorY].size() - visiblewidth);
-                        //Handle scrolling up if needed
-                        if (cursorX < viewX){
-                            viewX = cursorX;
-                        }else if (cursorX >= viewX + visiblewidth){
-                            viewX = cursorX - visiblewidth + 1;
-                        }
-                        if (cursorY < viewY) 
-                        {
-                            viewY = cursorY;
-                        
+
+                        int visibleWidth = COLS - 1; // Get visible width
+                        viewX = std::max(0, (int)content[cursorY].size() - visibleWidth); // Correct viewX
+
+                        if (cursorY < viewY) {
+                            viewY = cursorY; // Scroll up if needed
                         }
                     }
-                    if (cursorX < viewX) viewX = cursorX;
                     break;
+
                 case KEY_RIGHT:
                     if (cursorX < content[cursorY].size()) {
                         cursorX++;
