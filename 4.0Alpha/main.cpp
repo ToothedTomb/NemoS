@@ -84,6 +84,7 @@ private:
     int cursorX = 0, cursorY = 0;     // Cursor position
     std::stack<std::vector<std::string>> undoStack; // Undo stack
     std::stack<std::vector<std::string>> redoStack; // Redo stack
+    bool isModified = false; // Will  be used when the user tries to leave but may forget to save..
     void loadFile(const std::string &filename) {
         std::ifstream file(filename);
         std::string line;
@@ -98,6 +99,7 @@ private:
         for (const auto &line : content) {
             file << line << "\n";
         }
+        isModified = false;
     }
 
     std::string getCurrentTime(){
@@ -177,6 +179,7 @@ private:
             redoStack.push(content); // Save current content to redo stack
             content = undoStack.top(); // Restore previous content from undo stack
             undoStack.pop();
+            isModified = true;
             refresh();
         } 
         else {
@@ -188,6 +191,7 @@ private:
             undoStack.push(content); // Save current content to undo stack
             content = redoStack.top(); // Restore content from redo stack
             redoStack.pop();
+            isModified = true;
             refresh();
         }else 
         {
@@ -473,7 +477,7 @@ private:
                     content[cursorY] = content[cursorY].substr(0, cursorX);
                     cursorY++;
                     cursorX = 0;
-
+                    isModified = true;
                     viewX = 0; // Reset viewX after inserting a new line
                     if (cursorY >= viewY + LINES - 1) viewY++; // Scroll down if needed
                     break;
@@ -483,16 +487,32 @@ private:
                         pushUndo();
                         content[cursorY].erase(cursorX - 1, 1);
                         cursorX--;
+                        isModified = true;
                     } else if (cursorY > 0) {
                         pushUndo();
                         cursorX = content[cursorY - 1].size();
                         content[cursorY - 1] += content[cursorY];
                         content.erase(content.begin() + cursorY);
                         cursorY--;
+                        isModified = true; 
                     }
                     break;
                 case 24: // Ctrl+X (Exit)
+                if (isModified){   
+                    attron(COLOR_PAIR(2));
+                    mvprintw(LINES - 2, 0, "Warning: Are you sure you want to leave without saving? (Y/N)");
+                    clrtoeol();
+                    attroff(COLOR_PAIR(2));
+                    refresh();
+
+                    int answer = getch();
+                    if (answer == 'Y' || answer == 'y') {
+                        running = false;
+                    }
+                } else {
                     running = false;
+                }
+
                     break;
                 case 19: // Ctrl+S (Save)
                     saveFile(filename);
@@ -502,6 +522,7 @@ private:
                     pushUndo();
                     content[cursorY].insert(cursorX, "    ");
                     cursorX += 4;
+                    isModified = true;
                     break;
                 case 18: // Ctrl+R (Rename)
                     renameFile(filename);
@@ -535,6 +556,7 @@ private:
                             drawMessage("Clipboard is empty or no owner for the clipboard selection.");
                             break;
                         }
+                        isModified = true;
                         
                         // Split clipboardText into lines
                         std::istringstream iss(clipboardText);
@@ -595,6 +617,7 @@ private:
                     pushUndo();
                     content[cursorY].insert(cursorX, 1, ch);
                     cursorX++;
+                    isModified = true;
 
                     // **Handle scrolling while typing**
                     if (cursorX >= viewX + COLS - 1) viewX++; // Scroll horizontally when typing beyond the view
