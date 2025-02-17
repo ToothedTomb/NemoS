@@ -62,8 +62,7 @@ nemos txt.txt - Will use the file or create a new one if txt.txt does not exist.
 g++ main.cpp -o nemos -lncurses
 
 # Download the latest stable version:
-https://github.com/ToothedTomb/NemoS/releases/tag/3.0.0
-
+](https://github.com/ToothedTomb/NemoS/releases/tag/3.1.0)
 # Download the latest unstable version:
 https://github.com/ToothedTomb/NemoS/releases/tag/4.0.0-alpha
 
