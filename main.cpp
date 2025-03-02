@@ -112,20 +112,32 @@ private:
     }
 
     void renameFile(std::string &filename) {
-        drawMessage("Enter new filename: ");
-        echo();
-        char newFilename[256];
-        getstr(newFilename);
-        noecho();
+            drawMessage("Enter new filename: ");
+            echo();
+            char newFilename[256];
+            getstr(newFilename);
+            noecho();
 
-        // Rename the file
-        if (std::rename(filename.c_str(), newFilename) == 0) {
-            filename = newFilename;
-            drawMessage("File has been renamed!. :)");
-        } else {
-            drawMessage("Error: Failed to be renamed! :(");
+            // Check if the new filename is the same as the current one.
+            if (filename == newFilename){
+                drawMessage("Error: The filename is the same as before! :(");
+                return;
+            }
+            // Check if the new filename is already exists. :-)
+            std::ifstream file(newFilename);
+            if (file.good()){
+                drawMessage("Error: Filename is taken! :(");
+                return;
+            }
+
+            // Rename the file
+            if (std::rename(filename.c_str(), newFilename) == 0) {
+                filename = newFilename;
+                drawMessage("File has been renamed! :)");
+            } else {
+                drawMessage("Error: Failed to be renamed! :(");
+            }
         }
-    }
     std::string Date() {
         std::time_t t = std::time(nullptr);
         std::tm tm = *std::localtime(&t);
@@ -138,7 +150,7 @@ private:
     void drawHelp() {
         clear();
         attron(COLOR_PAIR(3));
-        mvprintw(1, 1, "Help Menu for NemoS 3.1:");
+        mvprintw(1, 1, "Help Menu for NemoS 3.2:");
         mvprintw(3, 1, "Arrow Keys: Navigate");
         mvprintw(4, 1, "Enter: Insert new line");
         mvprintw(5, 1, "Backspace: Delete character");
@@ -364,7 +376,7 @@ private:
 
 
 
-            mvprintw(LINES - 1, 0, "NemoS 3.1 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
+            mvprintw(LINES - 1, 0, "NemoS 3.2 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
             attroff(COLOR_PAIR(2));
             cursorX = std::min(cursorX, (int)content[cursorY].size());
             cursorY = std::min(cursorY, (int)content.size() -1);
