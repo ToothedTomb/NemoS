@@ -40,15 +40,43 @@ SOFTWARE.
 #include <ctime> // Will help display the time at the bottom.
 #include <cctype>
 #include <algorithm>
+#include <cstdio> // Important to allow the user to delete a file.
 
 // --help command to show how to run the application.
 void helpCommand(){
     std::cout << "Usage: nemos [OPTIONS]\n"
-    << "nemos        Will create or use untitled.txt document\n"
-    << "nemos file.txt      Will create or use the file.txt\n"
-    << "nemos --help      Show the help message\n";
+    << "nemos                      Will create or use untitled.txt document\n"
+    << "nemos file.txt             Will create or use the file.txt\n"
+    << "nemos --delete file.txt    Will delete the file that is given\n"    
+    << "nemos --help               Show the help message\n";
 
 }
+// --delete command to allow the user to delete a file. :)
+
+int DeleteFile(int argc, char *argv[], int i){
+            if (i + 1 >= argc) {
+                std::cerr << "Error: No filename has been entered! :(\n";
+                std::cerr << "Please do 'nemos --delete file.txt' to delete a file! :)\n";
+
+                return 1; // Error Code exit. :)
+            }
+
+            // Handle the --delete option
+            std::string filename = argv[i + 1];
+            std::cout << "Are you sure you want to delete " << filename << "? THIS ACTION CANNOT BE UNDONE! (Y/N): ";
+            char response;
+            std::cin >> response;
+            if (response == 'Y' || response == 'y') {
+                if (std::remove(filename.c_str()) == 0) {
+                    std::cout << "File " << filename << " has been deleted! :)\n";
+                } else {
+                    std::cerr << "Error: Unable to delete the file " << filename << "! :(\n";
+                }
+            } else {
+                std::cout << "File deletion has been canceled! :)\n";
+            }
+            return 0; // Exit after handling --delete
+        }
 
 
 
@@ -653,6 +681,9 @@ int main(int argc, char *argv[]) {
         if (arg == "--help") {
             helpCommand();
             return 0; // Exit after showing help
+        }
+        else if (arg == "--delete"){ // Allow for a file to be deleted. :)
+            return DeleteFile(argc, argv, i);
         }
     }
     std::string filename;
