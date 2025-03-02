@@ -128,10 +128,22 @@ private:
         getstr(newFilename);
         noecho();
 
+        // Check if the new filename is the same as the current one.
+        if (filename == newFilename){
+            drawMessage("Error: The filename is the same as before! :(");
+            return;
+        }
+        // Check if the new filename is already exists. :-)
+        std::ifstream file(newFilename);
+        if (file.good()){
+            drawMessage("Error: Filename is taken! :(");
+            return;
+        }
+
         // Rename the file
         if (std::rename(filename.c_str(), newFilename) == 0) {
             filename = newFilename;
-            drawMessage("File has been renamed!. :)");
+            drawMessage("File has been renamed! :)");
         } else {
             drawMessage("Error: Failed to be renamed! :(");
         }
