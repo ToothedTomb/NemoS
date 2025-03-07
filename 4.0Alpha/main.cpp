@@ -41,6 +41,36 @@ SOFTWARE.
 #include <cctype>
 #include <algorithm>
 #include <cstdio> // Important to allow the user to delete a file.
+#include <sys/stat.h> // Being used for the file size of the document.
+#include <iomanip> 
+
+
+
+
+
+
+std::string getFileSize(const std::string &filename){ // Calcuction to find the file size. 
+        struct stat stat_buf;
+        int rc = stat(filename.c_str(), &stat_buf);
+        if (rc == 0) {
+            double size = stat_buf.st_size;
+            std::ostringstream oss;
+            oss << std::fixed << std::setprecision(1);
+
+        if (size < 1024) {
+            oss << size << " B";
+        } else if (size < 1024 * 1024) {
+            oss << size / 1024 << " KB";
+        } else if (size < 1024 * 1024 * 1024) {
+            oss << size / (1024 * 1024) << " MB";
+        } else {
+            oss << size / (1024 * 1024 * 1024) << " GB";
+        }
+        return oss.str(); 
+    }
+        return "0 B"; // Return 0 B if the file doesn't exist or can't be accessed
+}
+
 
 // --help command to show how to run the application.
 void helpCommand(){
@@ -350,6 +380,8 @@ private:
             }
 
             int wordCount = countWords(fullText);
+            //Will find out the file size for the nav bar.
+            std::string FileSize = getFileSize(filename); // This will get the file size. :)
             //clear();
             // Draw the editor content
             for (int i = 0; i < LINES - 1; ++i) {
@@ -416,7 +448,7 @@ private:
 
 
 
-            mvprintw(LINES - 1, 0, "NemoS 4.0 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
+            mvprintw(LINES - 1, 0, "NemoS 4.0 | File: %s | File Size: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),FileSize.c_str(),wordCount, cursorY + 1, cursorX +1);
             attroff(COLOR_PAIR(2));
             cursorX = std::min(cursorX, (int)content[cursorY].size());
             cursorY = std::min(cursorY, (int)content.size() -1);
