@@ -78,7 +78,9 @@ void helpCommand(){
     << "nemos                      Will create or use untitled.txt document\n"
     << "nemos file.txt             Will create or use the file.txt\n"
     << "nemos --delete file.txt    Will delete the file that is given\n"    
+    << "nemos --version            Show what version of Nemos is installed\n"
     << "nemos --help               Show the help message\n";
+
 
 }
 // --delete command to allow the user to delete a file. :)
@@ -417,7 +419,6 @@ private:
                         attroff(COLOR_PAIR(3));
                     }
                 } else { // Other lines
-                    // ***CRITICAL FIX***: Move the cursor to the beginning of the line *before* printing!
                     move(i, 0); // Essential!
 
                     mvprintw(i, 0, "%s", line.substr(0, charsToPrint).c_str());
@@ -716,6 +717,11 @@ int main(int argc, char *argv[]) {
         }
         else if (arg == "--delete"){ // Allow for a file to be deleted. :)
             return DeleteFile(argc, argv, i);
+        }
+        else if (arg == "--version"){ // This will show the user what version of nemos they are using.
+            std::cout << "nemos, version 4.0 Alpha\n";
+            return 0;
+
         }
     }
     std::string filename;
