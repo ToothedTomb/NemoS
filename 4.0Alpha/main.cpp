@@ -185,6 +185,12 @@ private:
         drawMessage("Enter new filename: ");
         echo();
         char newFilename[256];
+        int ch = getch();
+        if (ch == 24){
+            noecho();
+            return;
+        }
+        ungetch(ch);
         getstr(newFilename);
         noecho();
 
@@ -317,6 +323,13 @@ private:
         drawMessage("Enter text to find: ");
         echo();
         char searchStr[256];
+        int ch = getch();
+
+        if (ch == 24){
+            noecho();
+            return;
+        }
+        ungetch(ch);
         getstr(searchStr);
         noecho();
 
@@ -344,6 +357,13 @@ private:
         drawMessage("Enter text to find: ");
         echo();
         char searchStr[256];
+        int ch = getch();
+
+        if (ch == 24){
+            noecho();
+            return;
+        }
+        ungetch(ch);
         getstr(searchStr);
         noecho();
 
