@@ -115,6 +115,12 @@ private:
             drawMessage("Enter new filename: ");
             echo();
             char newFilename[256];
+            int ch = getch();
+            if (ch == 24){
+                noecho();
+                return;
+            }
+            ungetch(ch);
             getstr(newFilename);
             noecho();
 
@@ -150,7 +156,7 @@ private:
     void drawHelp() {
         clear();
         attron(COLOR_PAIR(3));
-        mvprintw(1, 1, "Help Menu for NemoS 3.2:");
+        mvprintw(1, 1, "Help Menu for NemoS 3.3:");
         mvprintw(3, 1, "Arrow Keys: Navigate");
         mvprintw(4, 1, "Enter: Insert new line");
         mvprintw(5, 1, "Backspace: Delete character");
@@ -245,6 +251,12 @@ private:
         drawMessage("Enter text to find: ");
         echo();
         char searchStr[256];
+        int ch = getch();
+        if (ch == 24){
+            noecho();
+            return;
+        }
+        ungetch(ch);
         getstr(searchStr);
         noecho();
 
@@ -272,6 +284,12 @@ private:
         drawMessage("Enter text to find: ");
         echo();
         char searchStr[256];
+        int ch = getch();
+        if (ch == 24){
+            noecho();
+            return;
+        }
+        ungetch(ch);
         getstr(searchStr);
         noecho();
 
@@ -376,7 +394,7 @@ private:
 
 
 
-            mvprintw(LINES - 1, 0, "NemoS 3.2 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
+            mvprintw(LINES - 1, 0, "NemoS 3.3 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
             attroff(COLOR_PAIR(2));
             cursorX = std::min(cursorX, (int)content[cursorY].size());
             cursorY = std::min(cursorY, (int)content.size() -1);
