@@ -40,6 +40,7 @@ SOFTWARE.
 #include <ctime> // Will help display the time at the bottom.
 #include <cctype>
 #include <algorithm>
+#include <deque>
 #include <cstdio> // Important to allow the user to delete a file.
 #include <sys/stat.h> // Being used for the file size of the document.
 #include <iomanip> 
@@ -146,6 +147,7 @@ private:
     int cursorX = 0, cursorY = 0;     // Cursor position
     std::stack<std::vector<std::string>> undoStack; // Undo stack
     std::stack<std::vector<std::string>> redoStack; // Redo stack
+    std::deque<int> konamiSequence; //The easter egg. 
     bool isModified = false; // Will  be used when the user tries to leave but may forget to save..
     void loadFile(const std::string &filename) {
         std::ifstream file(filename);
@@ -403,6 +405,7 @@ private:
                 fullText += line + " ";
             }
 
+
             int wordCount = countWords(fullText);
             //Will find out the file size for the nav bar.
             std::string FileSize = getFileSize(filename); // This will get the file size. :)
@@ -482,6 +485,27 @@ private:
             int visiblewidth = COLS -1;
             int maxX = std::max(0, (int)content[cursorY].size() - visiblewidth); // Correct maxX            getmaxyx(stdscr, height,width);
             int ch = getch(); // Get user input
+                        //The user does the konami code will be displayed a message.
+            konamiSequence.push_back(ch);
+            if (konamiSequence.size() > 10) {
+                konamiSequence.pop_front();
+            }
+
+            // Check for Konami code sequence
+            if (konamiSequence.size() == 10 &&
+                konamiSequence[0] == KEY_UP &&
+                konamiSequence[1] == KEY_UP &&
+                konamiSequence[2] == KEY_DOWN &&
+                konamiSequence[3] == KEY_DOWN &&
+                konamiSequence[4] == KEY_LEFT &&
+                konamiSequence[5] == KEY_RIGHT &&
+                konamiSequence[6] == KEY_LEFT &&
+                konamiSequence[7] == KEY_RIGHT &&
+                konamiSequence[8] == 'b' &&
+                konamiSequence[9] == 'a') {
+                konamiSequence.clear();
+                drawMessage("You just did the Konami code, that's awesome. :)");
+            }
             switch (ch) {
                 case KEY_UP:
                     if (cursorY > 0) {
