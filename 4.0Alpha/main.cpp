@@ -77,8 +77,10 @@ void helpCommand(){
     std::cout << "Usage: nemos [OPTIONS]\n"
     << "nemos                      Will create or use untitled.txt document\n"
     << "nemos file.txt             Will create or use the file.txt\n"
-    << "nemos --delete file.txt    Will delete the file that is given\n"    
+    << "nemos --delete file.txt    Will delete the file that is given\n"
     << "nemos --version            Show what version of Nemos is installed\n"
+    << "nemos --license            Show the software license\n"
+    << "man nemos                  Will display man page for Nemos \n"    
     << "nemos --help               Show the help message\n";
 
 
@@ -743,6 +745,13 @@ int main(int argc, char *argv[]) {
             return 0;
 
         }
+        else if (arg == "--license"){ //LICENSE
+        std::cout << "MIT License (2025)\n";
+        return 0;
+        
+        }
+
+
     }
     std::string filename;
     if (argc >= 2) {
