@@ -1,0 +1,128 @@
+.TH NEMOS 1 "March 2025" "NemoS 4.0 Alpha" "User Manuals"
+.SH NAME
+NemoS 
+.SH SYNOPSIS
+.B nemos
+[\fIOPTION\fP] [\fIFILE\fP]
+.SH DESCRIPTION
+NemoS - Is a simple Terminal Text Editor that is based on Nano
+.SH OPTIONS
+.TP
+.B \-\nemos
+Will use or create a document that is untitled.txt
+.TP
+.B \-\nemos document.txt
+Will use or create a document that is document.txt
+
+.TP
+.B \-\-help
+Show help message and exit
+.TP
+.B \-\-version
+Show version information and exit
+.TP
+.B \-\-delete \fIFILE\fP
+Delete the specified file (with confirmation)
+
+.TP 
+.B \-\-license
+Show the software license and exit
+.SH KEY BINDINGS
+.TP
+.B Arrow Keys
+Navigate through the document
+.TP
+.B Enter
+Insert new line
+.TP
+.B Backspace
+Delete character
+.TP
+.B Ctrl+S
+Save file
+.TP
+.B Ctrl+R
+Rename file
+.TP
+.B Ctrl+C
+Copy text
+.TP
+.B Ctrl+V
+Paste text
+.TP
+.B Ctrl+Z
+Undo changes
+.TP
+.B Ctrl+Y
+Redo changes
+.TP
+.B Ctrl+F
+Find text
+.TP
+.B Ctrl+K
+Replace text
+.TP
+.B Ctrl+D
+Show date
+.TP
+.B Ctrl+T
+Show time
+.TP
+.B Ctrl+P
+Print document (uses lpr)
+.TP
+.B Ctrl+X
+Exit editor
+.TP
+.B Ctrl+H
+Show help menu
+
+.SH NAVIGATION
+Use the arrow keys to move around the document. The editor supports:
+.IP \[bu] 2
+Moving between lines with Up/Down arrows
+.IP \[bu] 2
+Moving between characters with Left/Right arrows
+.IP \[bu] 2
+Word wrap and basic scrolling
+
+.SH FEATURES
+.IP \[bu] 2
+Multiple undo/redo (Ctrl+Z/Ctrl+Y)
+.IP \[bu] 2
+Clipboard support (Ctrl+C/Ctrl+V)
+.IP \[bu] 2
+Find and replace (Ctrl+F/Ctrl+K)
+.IP \[bu] 2
+Date/time display (Ctrl+D/Ctrl+T)
+.IP \[bu] 2
+Printing support (Ctrl+P)
+.IP \[bu] 2
+File operations (save, rename)
+.SH COPYRIGHT
+MIT License
+
+Copyright (c) 2025 Jonathan Steadman
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+.SH AUTHOR
+Jonathan Steadman
+.SH SEE ALSO
+.BR nano(1),
+.BR vim(1)
