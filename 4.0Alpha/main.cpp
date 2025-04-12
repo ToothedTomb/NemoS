@@ -44,6 +44,8 @@ SOFTWARE.
 #include <cstdio> // Important to allow the user to delete a file.
 #include <sys/stat.h> // Being used for the file size of the document.
 #include <iomanip> 
+#include <signal.h> 
+
 
 
 
@@ -507,6 +509,15 @@ private:
                 drawMessage("You just did the Konami code, that's awesome. :)");
             }
             switch (ch) {
+                case KEY_RESIZE: //This should fix the resize -z bug from before...
+                resizeterm(0, 0);
+                if (cursorY >= viewY + LINES - 1)
+                    viewY = std::max(0, cursorY - (LINES - 2));
+                if (cursorX >= viewX + COLS - 1)
+                    viewX = std::max(0, cursorX - (COLS - 2));
+                clear();  // Clear and redraw the screen
+                break;
+
                 case KEY_UP:
                     if (cursorY > 0) {
                         cursorY--;
@@ -783,6 +794,7 @@ int main(int argc, char *argv[]) {
     }
 
     NemoS editor;
+
     editor.run(filename);
 
     return 0;
