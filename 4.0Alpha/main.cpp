@@ -139,8 +139,11 @@ public:
     void run(std::string &filename) {
         if (filename.empty()) {
             filename = "untitled.txt";
-        }
+            content.push_back("");
+            isModified = false;
+        }else{
         loadFile(filename);
+        }
         drawEditor(filename);
     }
 
@@ -154,10 +157,12 @@ private:
     void loadFile(const std::string &filename) {
         std::ifstream file(filename);
         std::string line;
+        content.clear();
         while (std::getline(file, line)) {
             content.push_back(line);
         }
         if (content.empty()) content.push_back(""); // Ensure at least one line
+        isModified = false;
     }
 
     void saveFile(const std::string &filename) {
@@ -167,6 +172,7 @@ private:
         }
         isModified = false;
     }
+
 
     std::string getCurrentTime(){
         time_t now = time(0); //Getting the current time.
@@ -475,8 +481,14 @@ private:
 
 
 
-
-            mvprintw(LINES - 1, 0, "NemoS 4.0 | File: %s | File Size: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),FileSize.c_str(),wordCount, cursorY + 1, cursorX +1);
+            //The bottom navigation bar!!!
+            mvprintw(LINES - 1, 0, "NemoS 4.0 | File: %s %s| File Size: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", 
+                filename.c_str(), 
+                isModified ? "[Modified] " : "",  // This will show "[Modified]" when changes are made but the user did not save yet. 
+                FileSize.c_str(),
+                wordCount, 
+                cursorY + 1, 
+                cursorX + 1); 
             attroff(COLOR_PAIR(2));
             cursorX = std::min(cursorX, (int)content[cursorY].size());
             cursorY = std::min(cursorY, (int)content.size() -1);
