@@ -147,6 +147,8 @@ public:
     }
 
 private:
+    int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
+
     std::vector<std::string> content; // Stores the text file content
     int cursorX = 0, cursorY = 0;     // Cursor position
     std::stack<std::vector<std::string>> undoStack; // Undo stack
@@ -351,6 +353,18 @@ private:
             if (pos != std::string::npos){
                 cursorY = i;
                 cursorX = pos;
+                if (cursorY < viewY) {
+                    viewY = cursorY; // Scroll up if needed
+                } else if (cursorY >= viewY + LINES - 1) {
+                    viewY = cursorY - LINES + 2; // Scroll down if needed
+                }
+            
+                if (cursorX < viewX) {
+                    viewX = cursorX; // Scroll left if needed
+                } else if (cursorX >= viewX + COLS - 1) {
+                    viewX = cursorX - COLS + 2; // Scroll right if needed
+                }
+                
                 found = true;
                 break;
             }
@@ -404,7 +418,7 @@ private:
     
     void drawEditor(std::string &filename) {
         bool running = true;
-        int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
+        //int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
         //std::thread timeThread(&NemoS::LiveTime, this);  // Pass 'this' to use the member function        timeThread.detach();
         while (running) {
             std::string fullText;
@@ -533,16 +547,16 @@ private:
                     if (cursorY > 0) {
                         cursorY--;
                         cursorX = 0;
-                        viewX = 0; // Reset viewX when moving up
-                        if (cursorY < viewY) viewY--; // Scroll up if needed
+                        //viewX = 0; // Reset viewX when moving up
+                        if (cursorY < viewY) viewY = cursorY; // Scroll up if needed
                     }
                     break;
                 case KEY_PPAGE:
                   if (cursorY > 0) {
                         cursorY--;
                         cursorX = 0;
-                        viewX = 0; // Reset viewX when moving up
-                        if (cursorY < viewY) viewY--; // Scroll up if needed
+                        //viewX = 0; // Reset viewX when moving up
+                        if (cursorY < viewY) viewY = cursorY; // Scroll up if needed
                     }
                     break;
 
@@ -550,8 +564,8 @@ private:
                     if (cursorY < content.size() - 1) {
                         cursorY++;
                         cursorX = 0;
-                        viewX = 0;
-                        if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 1; // Scroll down if needed
+                        //viewX = 0;
+                        if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 2; // Scroll down if needed
                                             
                     }
                     break;
@@ -559,8 +573,8 @@ private:
                    if (cursorY < content.size() - 1) {
                         cursorY++;
                         cursorX = 0;
-                        viewX = 0;
-                        if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 1; // Scroll down if needed                     
+                        //viewX = 0;
+                        if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 2; // Scroll down if needed                     
                     }
                     break;
                 case KEY_LEFT:
