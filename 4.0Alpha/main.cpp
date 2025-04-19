@@ -45,12 +45,50 @@ SOFTWARE.
 #include <sys/stat.h> // Being used for the file size of the document.
 #include <iomanip> 
 #include <signal.h> 
+#include <unistd.h>
+bool isSafePath(const std::string& path);
+enum FilePermission{
+    READABLE =0,
+    WRITEABLE,
+    EXECUTABLE,
+    EXISTS
+};
 
+bool checkPermission(const std::string& filename, FilePermission Permission){
+    int mode = 0;
+    switch (Permission) {
+        case READABLE: mode = R_OK; break;
+        case WRITEABLE: mode = W_OK; break;
+        case EXECUTABLE: mode = X_OK; break;
+        case EXISTS: mode = F_OK; break;
+    }
+    return access(filename.c_str(), mode) == 0;
+    
+    }
 
+// This function will check if the file exists and is writeable.
+bool isFileWriteable(const std::string& filename) {
+    // First check if path is safe
+    if (!isSafePath(filename)) {
+        return false;
+    }
 
-
-
-
+    // If file exists, check if it's WRITEABLE
+    if (checkPermission(filename, EXISTS)) {
+        return checkPermission(filename, WRITEABLE);
+    }
+    
+    // For new files, check parent directory permissions
+    size_t last_slash = filename.find_last_of('/');
+    if (last_slash != std::string::npos) {
+        std::string dir = filename.substr(0, last_slash);
+        if (dir.empty()) dir = "/"; // Handle root case
+        return checkPermission(dir, WRITEABLE);
+    }
+    
+    // For files in current directory
+    return checkPermission(".", WRITEABLE);
+}
 
 std::string getFileSize(const std::string &filename){ // Calcuction to find the file size. 
         struct stat stat_buf;
@@ -88,32 +126,70 @@ void helpCommand(){
 
 
 }
+bool isSafePath(const std::string& path) {
+    // Check for directory traversal attempts
+    if (path.find("../") != std::string::npos || 
+        path.find("/..") != std::string::npos ||
+        path == "..") {
+        return false;
+    }
+    
+    // Check if path is absolute and within safe directories
+    if (path[0] == '/') {
+        // List of allowed directories
+        const std::vector<std::string> allowed = {
+            "/home/", "/tmp/", "/var/tmp/"
+        };
+        
+        bool safe = false;
+        for (const auto& dir : allowed) {
+            if (path.find(dir) == 0) {
+                safe = true;
+                break;
+            }
+        }
+        return safe;
+    }
+    
+    return true; // Relative paths are okay
+}
 // --delete command to allow the user to delete a file. :)
 
-int DeleteFile(int argc, char *argv[], int i){
-            if (i + 1 >= argc) {
-                std::cerr << "Error: No filename has been entered! :(\n";
-                std::cerr << "Please do 'nemos --delete file.txt' to delete a file! :)\n";
+int DeleteFile(int argc, char *argv[], int i) {
+    if (i + 1 >= argc) {
+        std::cerr << "Error: No filename specified! :(\n";
+        return 1;
+    }
 
-                return 1; // Error Code exit. :)
-            }
+    std::string filename = argv[i + 1];
+    
+    // Check file exists and is WRITEABLE
+    if (!checkPermission(filename, EXISTS)) {
+        std::cerr << "Error: File doesn't exist! :(\n";
+        return 1;
+    }
+    if (!checkPermission(filename, WRITEABLE)) {
+        std::cerr << "Error: No permission to delete the file! :(\n";
+        return 1;
+    }
 
-            // Handle the --delete option
-            std::string filename = argv[i + 1];
-            std::cout << "Are you sure you want to delete " << filename << "? THIS ACTION CANNOT BE UNDONE! (Y/N): ";
-            char response;
-            std::cin >> response;
-            if (response == 'Y' || response == 'y') {
-                if (std::remove(filename.c_str()) == 0) {
-                    std::cout << "File " << filename << " has been deleted! :)\n";
-                } else {
-                    std::cerr << "Error: Unable to delete the file " << filename << "! :(\n";
-                }
-            } else {
-                std::cout << "File deletion has been canceled! :)\n";
-            }
-            return 0; // Exit after handling --delete
+    // Confirm deletion
+    std::cout << "Are you sure you want to delete " << filename 
+              << "? THIS ACTION CANNOT BE UNDONE! (Y/N): ";
+    char response;
+    std::cin >> response;
+    
+    if (response == 'Y' || response == 'y') {
+        if (std::remove(filename.c_str()) != 0) {
+            std::cerr << "Error: Failed to delete the file! :(\n";
+            return 1;
         }
+        std::cout << "File has been deleted successfully! :)\n";
+    } else {
+        std::cout << "Deletion has been canceled! :)\n";
+    }
+    return 0;
+}
 
 
 
@@ -135,16 +211,24 @@ public:
         endwin(); // End ncurses
     }
 
-    void run(std::string &filename) {
-        if (filename.empty()) {
-            filename = "untitled.txt";
-            content.push_back("");
-            isModified = false;
-        }else{
-        loadFile(filename);
-        }
-        drawEditor(filename);
+void run(std::string &filename) {
+    if (filename.empty()) {
+        filename = "untitled.txt";
+    } else if (!isSafePath(filename)) {
+        drawMessage("Error: Invalid file path! :(");
+        filename = "untitled.txt";
     }
+
+    // Load the file (permission checks happen inside loadFile)
+    loadFile(filename);
+    
+    // Only warn about write permissions if file exists
+    if (checkPermission(filename, EXISTS) && !isFileWriteable(filename)) {
+        drawMessage("Error: No write permission - opening read-only! :(");
+    }
+
+    drawEditor(filename);
+}
 
 private:
     int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
@@ -155,24 +239,76 @@ private:
     std::stack<std::vector<std::string>> redoStack; // Redo stack
     std::deque<int> konamiSequence; //The easter egg. 
     bool isModified = false; // Will  be used when the user tries to leave but may forget to save..
-    void loadFile(const std::string &filename) {
-        std::ifstream file(filename);
-        std::string line;
-        content.clear();
-        while (std::getline(file, line)) {
-            content.push_back(line);
-        }
-        if (content.empty()) content.push_back(""); // Ensure at least one line
+void loadFile(const std::string &filename) {
+    // Clear existing content
+    content.clear();
+    
+    // Check if file exists first
+    if (!checkPermission(filename, EXISTS)) {
+        // File doesn't exist - start with empty buffer
+        content.push_back("");
         isModified = false;
+        return;
     }
 
-    void saveFile(const std::string &filename) {
-        std::ofstream file(filename);
-        for (const auto &line : content) {
-            file << line << "\n";
-        }
+    // File exists - check read permission
+    if (!checkPermission(filename, READABLE)) {
+        drawMessage("Error: No read permission - opening read-only! :(");
+        content.push_back(""); // Start with empty buffer
         isModified = false;
+        return;
     }
+
+    // Try to open the file
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        drawMessage("Error: Could not open the file! :(");
+        content.push_back("");
+        return;
+    }
+    
+    // Read file content
+    std::string line;
+    while (std::getline(file, line)) {
+        content.push_back(line);
+    }
+    
+    if (content.empty()) {
+        content.push_back(""); // Ensure at least one line
+    }
+    
+    isModified = false;
+}
+void saveFile(const std::string &filename) {
+    // For new files, check directory permissions instead
+    if (!checkPermission(filename, EXISTS)) {
+        size_t last_slash = filename.find_last_of('/');
+        if (last_slash != std::string::npos) {
+            std::string dir = filename.substr(0, last_slash);
+            if (!checkPermission(dir, WRITEABLE)) {
+                drawMessage("Error: No permission to create file in this directory! :(");
+                return;
+            }
+        } else if (!checkPermission(".", WRITEABLE)) {
+            drawMessage("Error: No permission to create file in the current directory! :(");
+            return;
+        }
+    } else if (!isFileWriteable(filename)) {
+        drawMessage("Error: No permission to overwrite the file! :(");
+        return;
+    }
+
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        drawMessage("Error: Could not save the file! :(");
+        return;
+    }
+    
+    for (const auto &line : content) {
+        file << line << "\n";
+    }
+    isModified = false;
+}
 
 
     std::string getCurrentTime(){
@@ -198,35 +334,26 @@ private:
         drawMessage("Enter new filename: ");
         echo();
         char newFilename[256];
-        int ch = getch();
-        if (ch == 24){
-            noecho();
-            return;
-        }
-        ungetch(ch);
         getstr(newFilename);
         noecho();
 
-        // Check if the new filename is the same as the current one.
-        if (filename == newFilename){
-            drawMessage("Error: The filename is the same as before! :(");
-            return;
-        }
-        // Check if the new filename is already exists. :-)
-        std::ifstream file(newFilename);
-        if (file.good()){
-            drawMessage("Error: Filename is taken! :(");
+        if (!isSafePath(newFilename)) {
+            drawMessage("Error: Invalid file path! :(");
             return;
         }
 
-        // Rename the file
+        if (!isFileWriteable(filename)) {
+            drawMessage("Error: No permission to rename file! :(");
+            return;
+        }
+
         if (std::rename(filename.c_str(), newFilename) == 0) {
             filename = newFilename;
-            drawMessage("File has been renamed! :)");
+            drawMessage("File renamed successfully. :)");
         } else {
-            drawMessage("Error: Failed to be renamed! :(");
+            drawMessage("Error: Failed to rename file! :(");
         }
-    }
+    }    
     std::string Date() {
         std::time_t t = std::time(nullptr);
         std::tm tm = *std::localtime(&t);
@@ -291,23 +418,37 @@ private:
     }
     
     // This is the printing function - For printing documents. :)
-    void printFile(const std::string &filename){
-        std::ofstream tempFile("temp.txt");
-        for (const auto& line : content){
-            tempFile << line << "\n";
-        }
-        tempFile.close();
-        int result = system("lpr temp.txt");
-        if (result == 0) {
-            drawMessage("Document sent to printer.");
-        } else {
-            drawMessage("Failed to send document to printer.");
-        }
-
-        // Optionally, remove the temporary file after printing
-        std::remove("temp.txt");
-
-        }
+void printFile(const std::string &filename) {
+    std::string tempPath = "/tmp/nemos_print_XXXXXX"; 
+    
+    // Create secure temporary file
+    int fd = mkstemp(&tempPath[0]);
+    if (fd == -1) {
+        drawMessage("Error: Could not create the temporary file! :(");
+        return;
+    }
+    
+    // Set restrictive permissions (rw for owner only)
+    fchmod(fd, S_IRUSR | S_IWUSR);
+    
+    // Write content
+    std::ofstream tempFile(tempPath);
+    for (const auto& line : content) {
+        tempFile << line << "\n";
+    }
+    tempFile.close();
+    
+    // Print and clean up
+    int result = system(("lpr " + tempPath).c_str());
+    if (result == 0) {
+        drawMessage("Document sent to the printer! :)");
+    } else {
+        drawMessage("Error: Failed to send document to the printer! :(");
+    }
+    
+    // Securely delete temporary file
+    std::remove(tempPath.c_str());
+}
 
 
         //This function will display the word count to the taskbar the the bottom. 
@@ -686,7 +827,7 @@ private:
                     break;
                 case 19: // Ctrl+S (Save)
                     saveFile(filename);
-                    drawMessage("File has been saved! :)");
+                    //drawMessage("File has been saved! :)");
                     break;
                 case '\t': // Allow the tab key to work correctly. 
                     pushUndo();
