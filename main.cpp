@@ -72,6 +72,8 @@ public:
     }
 
 private:
+    int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
+
     std::vector<std::string> content; // Stores the text file content
     int cursorX = 0, cursorY = 0;     // Cursor position
     std::stack<std::vector<std::string>> undoStack; // Undo stack
@@ -156,7 +158,7 @@ private:
     void drawHelp() {
         clear();
         attron(COLOR_PAIR(3));
-        mvprintw(1, 1, "Help Menu for NemoS 3.4:");
+        mvprintw(1, 1, "Help Menu for NemoS 3.5:");
         mvprintw(3, 1, "Arrow Keys: Navigate");
         mvprintw(4, 1, "Enter: Insert new line");
         mvprintw(5, 1, "Backspace: Delete character");
@@ -252,6 +254,7 @@ private:
         echo();
         char searchStr[256];
         int ch = getch();
+
         if (ch == 24){
             noecho();
             return;
@@ -267,6 +270,18 @@ private:
             if (pos != std::string::npos){
                 cursorY = i;
                 cursorX = pos;
+                if (cursorY < viewY) {
+                    viewY = cursorY; // Scroll up if needed
+                } else if (cursorY >= viewY + LINES - 1) {
+                    viewY = cursorY - LINES + 2; // Scroll down if needed
+                }
+            
+                if (cursorX < viewX) {
+                    viewX = cursorX; // Scroll left if needed
+                } else if (cursorX >= viewX + COLS - 1) {
+                    viewX = cursorX - COLS + 2; // Scroll right if needed
+                }
+                
                 found = true;
                 break;
             }
@@ -319,7 +334,6 @@ private:
     
     void drawEditor(std::string &filename) {
         bool running = true;
-        int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
         //std::thread timeThread(&NemoS::LiveTime, this);  // Pass 'this' to use the member function        timeThread.detach();
         while (running) {
             std::string fullText;
@@ -394,7 +408,7 @@ private:
 
 
 
-            mvprintw(LINES - 1, 0, "NemoS 3.4 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
+            mvprintw(LINES - 1, 0, "NemoS 3.5 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
             attroff(COLOR_PAIR(2));
             cursorX = std::min(cursorX, (int)content[cursorY].size());
             cursorY = std::min(cursorY, (int)content.size() -1);
@@ -418,8 +432,8 @@ private:
                     if (cursorY > 0) {
                         cursorY--;
                         cursorX = 0;
-                        viewX = 0; // Reset viewX when moving up
-                        if (cursorY < viewY) viewY--; // Scroll up if needed
+                        //viewX = 0; // Reset viewX when moving up
+                        if (cursorY < viewY) viewY = cursorY; // Scroll up if needed
                     }
                     break;
 
@@ -427,26 +441,31 @@ private:
                     if (cursorY < content.size() - 1) {
                         cursorY++;
                         cursorX = 0;
-                        viewX = 0;
-                        if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 1; // Scroll down if needed
+                        //viewX = 0;
+                        if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 2; // Scroll down if needed
                                             
                     }
                     break;
                 case KEY_LEFT:
                     if (cursorX > 0) {
                         cursorX--;
+                        // Only scroll left if cursor goes past left edge of viewport
                         if (cursorX < viewX) {
-                            viewX = cursorX; // Scroll left
+                            viewX = cursorX;
                         }
                     } else if (cursorY > 0) {
+                        // Move to end of previous line
                         cursorY--;
-                        cursorX = content[cursorY].size(); // End of previous line
-
-                        int visibleWidth = COLS - 1; // Get visible width
-                        viewX = std::max(0, (int)content[cursorY].size() - visibleWidth); // Correct viewX
-
+                        cursorX = content[cursorY].size();
+                        // Adjust view to show end of previous line
+                        if (content[cursorY].size() >= COLS - 1) {
+                            viewX = content[cursorY].size() - COLS + 1;
+                        } else {
+                            viewX = 0;
+                        }
+                        // Scroll up if needed
                         if (cursorY < viewY) {
-                            viewY = cursorY; // Scroll up if needed
+                            viewY = cursorY;
                         }
                     }
                     break;
@@ -454,16 +473,19 @@ private:
                 case KEY_RIGHT:
                     if (cursorX < content[cursorY].size()) {
                         cursorX++;
-
-                        // *** The crucial fix: ***
-                        int visibleWidth = COLS - 1; // Or adjust as needed for borders/etc.
-                        if (cursorX >= viewX + visibleWidth) {
-                            viewX = cursorX - visibleWidth + 1; // Scroll right
+                        // Only scroll right if cursor goes past right edge of viewport
+                        if (cursorX >= viewX + COLS - 1) {
+                            viewX = cursorX - COLS + 2;
                         }
-                    } else if (cursorY < content.size() - 1) { // Check for next line
-                            cursorY++;        // Move to the next line
-                            cursorX = 0;        // Start at the beginning of the next line
-                            viewX = 0;        // Reset horizontal view
+                    } else if (cursorY < content.size() - 1) {
+                        // Move to start of next line
+                        cursorY++;
+                        cursorX = 0;
+                        viewX = 0; // Reset horizontal scroll at line start
+                        // Scroll down if needed
+                        if (cursorY >= viewY + LINES - 1) {
+                            viewY = cursorY - LINES + 2;
+                        }
                     }
                     break;
                 case 6: //Ctrl + F
