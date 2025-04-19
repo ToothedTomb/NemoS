@@ -580,18 +580,23 @@ private:
                 case KEY_LEFT:
                     if (cursorX > 0) {
                         cursorX--;
+                        // Only scroll left if cursor goes past left edge of viewport
                         if (cursorX < viewX) {
-                            viewX = cursorX; // Scroll left
+                            viewX = cursorX;
                         }
                     } else if (cursorY > 0) {
+                        // Move to end of previous line
                         cursorY--;
-                        cursorX = content[cursorY].size(); // End of previous line
-
-                        int visibleWidth = COLS - 1; // Get visible width
-                        viewX = std::max(0, (int)content[cursorY].size() - visibleWidth); // Correct viewX
-
+                        cursorX = content[cursorY].size();
+                        // Adjust view to show end of previous line
+                        if (content[cursorY].size() >= COLS - 1) {
+                            viewX = content[cursorY].size() - COLS + 1;
+                        } else {
+                            viewX = 0;
+                        }
+                        // Scroll up if needed
                         if (cursorY < viewY) {
-                            viewY = cursorY; // Scroll up if needed
+                            viewY = cursorY;
                         }
                     }
                     break;
@@ -599,16 +604,19 @@ private:
                 case KEY_RIGHT:
                     if (cursorX < content[cursorY].size()) {
                         cursorX++;
-
-                        // *** The crucial fix: ***
-                        int visibleWidth = COLS - 1; // Or adjust as needed for borders/etc.
-                        if (cursorX >= viewX + visibleWidth) {
-                            viewX = cursorX - visibleWidth + 1; // Scroll right
+                        // Only scroll right if cursor goes past right edge of viewport
+                        if (cursorX >= viewX + COLS - 1) {
+                            viewX = cursorX - COLS + 2;
                         }
-                    } else if (cursorY < content.size() - 1) { // Check for next line
-                            cursorY++;        // Move to the next line
-                            cursorX = 0;        // Start at the beginning of the next line
-                            viewX = 0;        // Reset horizontal view
+                    } else if (cursorY < content.size() - 1) {
+                        // Move to start of next line
+                        cursorY++;
+                        cursorX = 0;
+                        viewX = 0; // Reset horizontal scroll at line start
+                        // Scroll down if needed
+                        if (cursorY >= viewY + LINES - 1) {
+                            viewY = cursorY - LINES + 2;
+                        }
                     }
                     break;
                 case 6: //Ctrl + F
