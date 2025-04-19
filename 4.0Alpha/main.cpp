@@ -125,7 +125,6 @@ public:
         keypad(stdscr, TRUE);  // Enable special keys
         noecho();              // Don't echo input
         start_color();         // Enable colors
-
         // Define pinkish color pairs
         init_pair(1, COLOR_CYAN, COLOR_BLACK);   // Text in pink
         init_pair(2, COLOR_BLACK, COLOR_MAGENTA); // Status bar
@@ -538,6 +537,14 @@ private:
                         if (cursorY < viewY) viewY--; // Scroll up if needed
                     }
                     break;
+                case KEY_PPAGE:
+                  if (cursorY > 0) {
+                        cursorY--;
+                        cursorX = 0;
+                        viewX = 0; // Reset viewX when moving up
+                        if (cursorY < viewY) viewY--; // Scroll up if needed
+                    }
+                    break;
 
                 case KEY_DOWN:
                     if (cursorY < content.size() - 1) {
@@ -546,6 +553,14 @@ private:
                         viewX = 0;
                         if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 1; // Scroll down if needed
                                             
+                    }
+                    break;
+                case KEY_NPAGE:
+                   if (cursorY < content.size() - 1) {
+                        cursorY++;
+                        cursorX = 0;
+                        viewX = 0;
+                        if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 1; // Scroll down if needed                     
                     }
                     break;
                 case KEY_LEFT:
