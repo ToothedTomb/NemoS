@@ -795,6 +795,7 @@ void printFile(const std::string &filename) {
                     break;
                 case KEY_BACKSPACE:
                 case 127:
+                case 330:
                     if (cursorX > 0) {
                         pushUndo();
                         content[cursorY].erase(cursorX - 1, 1);
