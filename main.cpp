@@ -158,7 +158,7 @@ private:
     void drawHelp() {
         clear();
         attron(COLOR_PAIR(3));
-        mvprintw(1, 1, "Help Menu for NemoS 3.5:");
+        mvprintw(1, 1, "Help Menu for NemoS 3.6:");
         mvprintw(3, 1, "Arrow Keys: Navigate");
         mvprintw(4, 1, "Enter: Insert new line");
         mvprintw(5, 1, "Backspace: Delete character");
@@ -408,7 +408,7 @@ private:
 
 
 
-            mvprintw(LINES - 1, 0, "NemoS 3.5 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
+            mvprintw(LINES - 1, 0, "NemoS 3.6 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
             attroff(COLOR_PAIR(2));
             cursorX = std::min(cursorX, (int)content[cursorY].size());
             cursorY = std::min(cursorY, (int)content.size() -1);
@@ -522,6 +522,7 @@ private:
                     break;
                 case KEY_BACKSPACE:
                 case 127:
+                case 330:
                     if (cursorX > 0) {
                         pushUndo();
                         content[cursorY].erase(cursorX - 1, 1);
