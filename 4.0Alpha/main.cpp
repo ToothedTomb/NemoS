@@ -372,17 +372,18 @@ void saveFile(const std::string &filename) {
         mvprintw(5, 1, "Backspace: Delete character");
         mvprintw(6, 1, "Ctrl+S: Save file");
         mvprintw(7, 1, "Ctrl+R: Rename file");
-        mvprintw(8,1, "Ctrl+C: Copy text");
-        mvprintw(9,1,  "Ctrl+V: Paste text");
-        mvprintw(10,1,  "Ctrl+Z: Undo changes");
-        mvprintw(11,1,   "Ctrl+Y: Redo changes");
-        mvprintw(12,1, "Ctrl+F: Find text");
-        mvprintw(13,1, "Ctrl+K: Replace text");
-        mvprintw(14,1, "Ctrl+D: Show date");
-        mvprintw(15,1, "Ctrl+T: Show time");
-        mvprintw(16,1, "Ctrl+P: Print document"); // This will use a Linux terminal application known as lpr.
-        mvprintw(17, 1, "Ctrl+X: Exit editor");
-        mvprintw(18, 1, "Press any key to return to the editor...");
+        mvprintw(8, 1, "Ctrl+O: Open another document");
+        mvprintw(9,1, "Ctrl+C: Copy text");
+        mvprintw(10,1,  "Ctrl+V: Paste text");
+        mvprintw(11,1,  "Ctrl+Z: Undo changes");
+        mvprintw(12,1,   "Ctrl+Y: Redo changes");
+        mvprintw(13,1, "Ctrl+F: Find text");
+        mvprintw(14,1, "Ctrl+K: Replace text");
+        mvprintw(15,1, "Ctrl+D: Show date");
+        mvprintw(16,1, "Ctrl+T: Show time");
+        mvprintw(17,1, "Ctrl+P: Print document"); // This will use a Linux terminal application known as lpr.
+        mvprintw(18, 1, "Ctrl+X: Exit editor");
+        mvprintw(19, 1, "Press any key to return to the editor...");
 
         attroff(COLOR_PAIR(3));
         getch();
@@ -898,8 +899,45 @@ void printFile(const std::string &filename) {
                     }
                     break;
                 }
+                case 15: 
+                drawMessage("Enter filename to open: ");
+                echo();
+                char newFilename[256];
+                getstr(newFilename);
+                noecho();
 
+                if (!isSafePath(newFilename)) {
+                    drawMessage("Error: Invalid file path! :(");
+                    break;
+                }
 
+                // Check if file exists and is readable
+                if (!checkPermission(newFilename, EXISTS)) {
+                    drawMessage("Error: File doesn't exist! :(");
+                    break;
+                }
+                if (!checkPermission(newFilename, READABLE)) {
+                    drawMessage("Error: No read permission! :(");
+                    break;
+                }
+
+                // Save current file if modified
+                if (isModified) {
+                    drawMessage("Do you want to save the current file first? (Y/N): ");
+                    int answer = getch();
+                    if (answer == 'Y' || answer == 'y') {
+                        saveFile(filename);
+                    }
+                }
+
+                // Load new file
+                filename = newFilename;
+                loadFile(filename);
+                cursorX = 0;
+                cursorY = 0;
+                viewX = 0;
+                viewY = 0;
+                break;
                 case 3: // The case 3 will be used to add the control C support - Will allow for copying text.
                     if (!content.empty() && cursorY < content.size()) {
                         std::string textToCopy = content[cursorY]; // Copy the current line
@@ -951,6 +989,7 @@ void printFile(const std::string &filename) {
         mvprintw(LINES - 2, 0, "%s", message.c_str());
         attroff(COLOR_PAIR(2));
         refresh();
+
         getch(); // Wait for key press
     }
 };
