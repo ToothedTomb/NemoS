@@ -67,7 +67,7 @@ https://github.com/ToothedTomb/NemoS/releases/tag/3.6.0
 
 # Download the latest unstable version:
 
-https://github.com/ToothedTomb/NemoS/releases/tag/4.0.0-alpha
+https://github.com/ToothedTomb/NemoS/releases/tag/4.0.0-beta
 
 # Credits:
 Jonathan Steadmman
