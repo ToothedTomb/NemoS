@@ -158,7 +158,7 @@ private:
     void drawHelp() {
         clear();
         attron(COLOR_PAIR(3));
-        mvprintw(1, 1, "Help Menu for NemoS 3.6:");
+        mvprintw(1, 1, "Help Menu for NemoS 3.7:");
         mvprintw(3, 1, "Arrow Keys: Navigate");
         mvprintw(4, 1, "Enter: Insert new line");
         mvprintw(5, 1, "Backspace: Delete character");
@@ -408,7 +408,7 @@ private:
 
 
 
-            mvprintw(LINES - 1, 0, "NemoS 3.6 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
+            mvprintw(LINES - 1, 0, "NemoS 3.7 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
             attroff(COLOR_PAIR(2));
             cursorX = std::min(cursorX, (int)content[cursorY].size());
             cursorY = std::min(cursorY, (int)content.size() -1);
@@ -432,7 +432,7 @@ private:
                     if (cursorY > 0) {
                         cursorY--;
                         cursorX = 0;
-                        //viewX = 0; // Reset viewX when moving up
+                        viewX = 0; // Reset viewX when moving up
                         if (cursorY < viewY) viewY = cursorY; // Scroll up if needed
                     }
                     break;
@@ -441,7 +441,7 @@ private:
                     if (cursorY < content.size() - 1) {
                         cursorY++;
                         cursorX = 0;
-                        //viewX = 0;
+                        viewX = 0;
                         if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 2; // Scroll down if needed
                                             
                     }
