@@ -4,6 +4,7 @@ NemoS - Is a simple Terminal Text Editor that is based on Nano.
 
 # Install to your system:
 **Note: You need to be the root user.**
+
 Firstly you need to make it runable, do this command to do so: "chmod +x ./install.sh"
 
 Now you can install the software, by running this command: "sudo bash install.sh" 
