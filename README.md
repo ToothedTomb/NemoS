@@ -74,6 +74,6 @@ https://github.com/ToothedTomb/NemoS/releases/tag/3.6.0
 https://github.com/ToothedTomb/NemoS/releases/tag/4.0.0-Beta
 
 # Credits:
-Jonathan Steadmman
+Jonathan Steadman
 
 # Thanks for reading. 
