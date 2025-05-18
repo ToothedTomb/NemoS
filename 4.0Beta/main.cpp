@@ -552,6 +552,7 @@ void printFile(const std::string &filename) {
         }
         if (replaced){
             drawMessage("Text has been replaced. :)");
+            isModified = true;
         }
         else {
             drawMessage("Error: Text has not been found. :(");
