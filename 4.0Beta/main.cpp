@@ -1122,7 +1122,13 @@ int main(int argc, char *argv[]) {
         else if (arg == "--license"){ //LICENSE
         std::cout << "MIT License (2025)\n";
         return 0;
+        }
         
+        
+        else if (arg[0] == '-'){
+            std::cout << "Error: Invalid option: '" << arg << " ' :(\n";
+            helpCommand();
+            return 1;
         }
 
 
