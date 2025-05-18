@@ -896,7 +896,7 @@ void printFile(const std::string &filename) {
                         
                         // Update the cursor position to the end of the pasted text
                         cursorY = cursorY + lines.size() - 1;
-                        cursorX = lines.back().size();
+                        //cursorX = lines.back().size();
                     } else {
                         drawMessage("Error: Clipboard empty or could not be accessed.");
                     }
