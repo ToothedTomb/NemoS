@@ -1126,7 +1126,7 @@ int main(int argc, char *argv[]) {
         
         
         else if (arg[0] == '-'){
-            std::cout << "Error: Invalid option: '" << arg << " ' :(\n";
+            std::cout << "Error: Invalid option: '" << arg << "' :(\n";
             helpCommand();
             return 1;
         }
