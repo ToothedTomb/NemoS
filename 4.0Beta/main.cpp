@@ -691,7 +691,7 @@ void printFile(const std::string &filename) {
                     if (cursorY > 0) {
                         cursorY--;
                         cursorX = 0;
-                        //viewX = 0; // Reset viewX when moving up
+                        viewX = 0; // Reset viewX when moving up
                         if (cursorY < viewY) viewY = cursorY; // Scroll up if needed
                     }
                     break;
@@ -699,7 +699,7 @@ void printFile(const std::string &filename) {
                   if (cursorY > 0) {
                         cursorY--;
                         cursorX = 0;
-                        //viewX = 0; // Reset viewX when moving up
+                        viewX = 0; // Reset viewX when moving up
                         if (cursorY < viewY) viewY = cursorY; // Scroll up if needed
                     }
                     break;
@@ -708,16 +708,15 @@ void printFile(const std::string &filename) {
                     if (cursorY < content.size() - 1) {
                         cursorY++;
                         cursorX = 0;
-                        //viewX = 0;
-                        if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 2; // Scroll down if needed
-                                            
+                        viewX = 0;
+                        if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 2; // Scroll down if needed.
                     }
                     break;
                 case KEY_NPAGE:
                    if (cursorY < content.size() - 1) {
                         cursorY++;
                         cursorX = 0;
-                        //viewX = 0;
+                        viewX = 0;
                         if (cursorY >= viewY + LINES - 1) viewY = cursorY - LINES + 2; // Scroll down if needed                     
                     }
                     break;
