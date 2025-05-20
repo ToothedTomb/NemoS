@@ -158,7 +158,7 @@ private:
     void drawHelp() {
         clear();
         attron(COLOR_PAIR(3));
-        mvprintw(1, 1, "Help Menu for NemoS 3.7:");
+        mvprintw(1, 1, "Help Menu for NemoS 3.8:");
         mvprintw(3, 1, "Arrow Keys: Navigate");
         mvprintw(4, 1, "Enter: Insert new line");
         mvprintw(5, 1, "Backspace: Delete character");
@@ -179,34 +179,77 @@ private:
         attroff(COLOR_PAIR(3));
         getch();
     }
-    void pushUndo(){
-        undoStack.push(content);
-        while (!redoStack.empty()) redoStack.pop();
+    void pushUndo() {
+        // Create a deep copy of the current content
+        std::vector<std::string> currentState;
+        currentState.reserve(content.size());
+        for (const auto& line : content) {
+            currentState.push_back(line);
+        }
 
+        // Only push if different from last undo state
+        if (undoStack.empty() || currentState != undoStack.top()) {
+            // Limit undo stack size
+            if (undoStack.size() > 100) {
+                undoStack.pop();
+            }
+            undoStack.push(currentState);
+            // Clear redo stack whenever we push a new undo state
+            while (!redoStack.empty()) {
+                redoStack.pop();
+            }
+        }
     }
+
     void undo() {
         if (!undoStack.empty()) {
-            redoStack.push(content); // Save current content to redo stack
-            content = undoStack.top(); // Restore previous content from undo stack
+            // Create deep copy of current state for redo
+            std::vector<std::string> currentState;
+            currentState.reserve(content.size());
+            for (const auto& line : content) {
+                currentState.push_back(line);
+            }
+            
+            redoStack.push(currentState);
+            
+            // Restore from undo stack
+            content = undoStack.top();
             undoStack.pop();
+            
+            // Ensure cursor stays within bounds
+            cursorY = std::min(cursorY, (int)content.size() - 1);
+            cursorX = std::min(cursorX, (int)content[cursorY].size());
+            
             refresh();
-        } 
-        else {
-            drawMessage("Error: There is nothing to undo! :(");
+        } else {
+            drawMessage("Error: Nothing to undo! :(");
         }
     }
+
     void redo() {
         if (!redoStack.empty()) {
-            undoStack.push(content); // Save current content to undo stack
-            content = redoStack.top(); // Restore content from redo stack
+            // Create deep copy of current state for undo
+            std::vector<std::string> currentState;
+            currentState.reserve(content.size());
+            for (const auto& line : content) {
+                currentState.push_back(line);
+            }
+            
+            undoStack.push(currentState);
+            
+            // Restore from redo stack
+            content = redoStack.top();
             redoStack.pop();
+            
+            // Ensure cursor stays within bounds
+            cursorY = std::min(cursorY, (int)content.size() - 1);
+            cursorX = std::min(cursorX, (int)content[cursorY].size());
+            
             refresh();
-        }else 
-        {
-            drawMessage("Error: There is nothing to redo! :(");
+        } else {
+            drawMessage("Error: Nothing to redo! :(");
         }
     }
-    
     // This is the printing function - For printing documents. :)
     void printFile(const std::string &filename){
         std::ofstream tempFile("temp.txt");
@@ -408,7 +451,7 @@ private:
 
 
 
-            mvprintw(LINES - 1, 0, "NemoS 3.7 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
+            mvprintw(LINES - 1, 0, "NemoS 3.8 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
             attroff(COLOR_PAIR(2));
             cursorX = std::min(cursorX, (int)content[cursorY].size());
             cursorY = std::min(cursorY, (int)content.size() -1);
@@ -602,13 +645,28 @@ private:
                         content[cursorY + lines.size() - 1] += afterCursor;
                         
                         // Update the cursor position to the end of the pasted text
+                        //cursorX = lines.back().size();
+                                // Update cursor position to the end of the pasted text
                         cursorY = cursorY + lines.size() - 1;
-                        cursorX = lines.back().size();
+                        cursorX = content[cursorY].size() - afterCursor.size();
+                        
+                        // Adjust view to make sure cursor is visible
+                        if (cursorY < viewY) {
+                            viewY = cursorY; // Scroll up if needed
+                        } else if (cursorY >= viewY + LINES - 1) {
+                            viewY = cursorY - LINES + 2; // Scroll down if needed
+                        }
+                        
+                        if (cursorX < viewX) {
+                            viewX = cursorX; // Scroll left if needed
+                        } else if (cursorX >= viewX + COLS - 1) {
+                            viewX = cursorX - COLS + 2; // Scroll right if needed
+                        }
                     } else {
                         drawMessage("Error: Clipboard empty or could not be accessed.");
                     }
-                    break;
-                }
+                    break;                
+                    }
 
 
                 case 3: // The case 3 will be used to add the control C support - Will allow for copying text.
