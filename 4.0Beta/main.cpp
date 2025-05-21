@@ -861,6 +861,8 @@ void printFile(const std::string &filename) {
             refresh(); // Refresh the screen after updates
             int height,width;
             int visiblewidth = COLS -1;
+            int effective_screen_width = COLS - 1;
+
             int maxX = std::max(0, (int)content[cursorY].size() - visiblewidth); // Correct maxX            getmaxyx(stdscr, height,width);
             int ch = getch(); // Get user input
                         //The user does the konami code will be displayed a message.
@@ -1004,20 +1006,45 @@ void printFile(const std::string &filename) {
                 case KEY_BACKSPACE:
                 case 127:
                 case 330:
-                    if (cursorX > 0) {
-                        pushUndo();
-                        content[cursorY].erase(cursorX - 1, 1);
-                        cursorX--;
-                        isModified = true;
-                    } else if (cursorY > 0) {
-                        pushUndo();
-                        cursorX = content[cursorY - 1].size();
-                        content[cursorY - 1] += content[cursorY];
-                        content.erase(content.begin() + cursorY);
-                        cursorY--;
-                        isModified = true; 
+                pushUndo(); // Always push undo *before* modification
+
+
+                if (cursorX > 0) {
+                    content[cursorY].erase(cursorX - 1, 1);
+                    cursorX--; 
+                    isModified = true;
+                    if ((int)content[cursorY].length() <= effective_screen_width) {
+                        viewX = 0;
                     }
-                    break;
+                    else {
+                        int cursor_on_screen_x = cursorX - viewX;
+                        int left_scroll_trigger_point = effective_screen_width / 3;
+
+                        if (cursor_on_screen_x < left_scroll_trigger_point && viewX > 0) {
+                            viewX = cursorX - left_scroll_trigger_point;
+                            if (viewX < 0) viewX = 0; 
+                        }
+                        int max_possible_viewX = (int)content[cursorY].length() - effective_screen_width;
+                        if (viewX > max_possible_viewX) {
+                            viewX = std::max(0, max_possible_viewX);
+                        }
+                    }
+
+                } else if (cursorY > 0) {
+                    cursorX = content[cursorY - 1].length();
+
+                    
+                    content[cursorY - 1] += content[cursorY];
+                    content.erase(content.begin() + cursorY);
+                    cursorY--; // Move cursor up to the merged line
+                    isModified = true;
+
+                    if (cursorX >= viewX + effective_screen_width) {
+                        viewX = cursorX - (effective_screen_width - 1);
+                    }
+                    if (viewX < 0) viewX = 0; // Ensure viewX doesn't go negative
+                }
+                break;
                 case 24: // Ctrl+X (Exit)
                 if (isModified){   
                     attron(COLOR_PAIR(2));
