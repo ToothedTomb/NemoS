@@ -429,7 +429,11 @@ void saveFile(const std::string &filename) {
             // Ensure cursor stays within bounds
             cursorY = std::min(cursorY, (int)content.size() - 1);
             cursorX = std::min(cursorX, (int)content[cursorY].size());
-            
+            viewY = std::max(0, cursorY - 2);
+            viewX = std::max(0, cursorX - (COLS / 2));
+            if (cursorX >= viewX + COLS - 1){
+                viewX = cursorX - COLS + 2;
+            }
             isModified = true;
             refresh();
         } else {
