@@ -523,91 +523,250 @@ void printFile(const std::string &filename) {
             return count;
     }
 
-    void find(){ //This function will see if your text you enter is found in the text editor for the opened file. :) 
-        drawMessage("Enter text to find: ");
+    void find() {
+        static std::vector<std::pair<int, size_t>> matches; // Stores line numbers and positions
+        static size_t currentMatch = 0;
+        static std::string lastSearch;
+
+        drawMessage("Find: ");
         echo();
         char searchStr[256];
         int ch = getch();
 
-        if (ch == 24){
+        if (ch == 24) { // Control + X to cancel
+            matches.clear();
+            lastSearch.clear();
+            currentMatch = 0;
+
             noecho();
             return;
         }
         ungetch(ch);
-        getstr(searchStr);
+        getnstr(searchStr, sizeof(searchStr) - 1);
         noecho();
 
-        bool found = false;
+        if (strlen(searchStr) == 0) {
+            drawMessage("Find has been canceled!");
+            return;
+        }
 
-        for (size_t i =0; i < content.size(); ++i){
-            size_t pos = content[i].find(searchStr);
-            if (pos != std::string::npos){
-                cursorY = i;
-                cursorX = pos;
-                if (cursorY < viewY) {
-                    viewY = cursorY; // Scroll up if needed
-                } else if (cursorY >= viewY + LINES - 1) {
-                    viewY = cursorY - LINES + 2; // Scroll down if needed
-                }
+        // If this is a new search, find all matches
+        if (lastSearch != searchStr) {
+            matches.clear();
+            lastSearch = searchStr;
             
-                if (cursorX < viewX) {
-                    viewX = cursorX; // Scroll left if needed
-                } else if (cursorX >= viewX + COLS - 1) {
-                    viewX = cursorX - COLS + 2; // Scroll right if needed
+            // Search entire document
+            for (size_t i = 0; i < content.size(); i++) {
+                size_t pos = 0;
+                while ((pos = content[i].find(searchStr, pos)) != std::string::npos) {
+                    matches.emplace_back(i, pos);
+                    pos += strlen(searchStr);
                 }
-                
-                found = true;
-                break;
+            }
+            
+            if (matches.empty()) {
+                drawMessage("Error: Text has not been found! :(");
+                return;
+            }
+            
+            currentMatch = 0;
+        } else {
+            // If same search, cycle through matches
+            currentMatch = (currentMatch + 1) % matches.size();
+        }
+
+        // Highlight the current match
+        cursorY = matches[currentMatch].first;
+        cursorX = matches[currentMatch].second;
+        
+        // Center the view
+        viewY = std::max(0, cursorY - LINES/3);
+        if (cursorY >= viewY + LINES - 1) {
+            viewY = cursorY - LINES + 2;
+        }
+        viewX = std::max(0, cursorX - COLS/3);
+        if (cursorX >= viewX + COLS - 1) {
+            viewX = cursorX - COLS + 2;
+        }
+        
+        // Show navigation instructions
+        std::string msg = "Match " + std::to_string(currentMatch + 1) + " of " + 
+                        std::to_string(matches.size()) + " (left and right arrow keys to navigate)";
+        drawMessage(msg.c_str());
+        
+        // Allow navigation through matches with arrow keys
+        while (true) {
+            clear();
+            // Redraw content
+            for (int i = 0; i < LINES - 1; ++i) {
+                int lineIndex = i + viewY;
+                if (lineIndex < content.size()) {
+                    mvprintw(i, 0, "%s", content[lineIndex].substr(viewX, COLS - 1).c_str());
+                }
+                clrtoeol();
+            }
+            
+            // Highlight current match
+            move(cursorY - viewY, cursorX - viewX);
+            attron(A_REVERSE);
+            addstr(lastSearch.c_str());
+            attroff(A_REVERSE);
+            
+            // Redraw status bar
+            attron(COLOR_PAIR(2));
+            mvprintw(LINES - 1, 0, "Match %d/%d - left and right arrow keys: Navigate | Enter: Exit", 
+                    currentMatch + 1, matches.size());
+            attroff(COLOR_PAIR(2));
+            
+            refresh();
+            
+            int nav = getch();
+            switch (nav) {
+                case KEY_LEFT:
+                    currentMatch = (currentMatch == 0) ? matches.size() - 1 : currentMatch - 1;
+                    break;
+                case KEY_RIGHT:
+                    currentMatch = (currentMatch + 1) % matches.size();
+                    break;
+                case '\n':
+                    return; // Exit search navigation
+                default:
+                    continue;
+            }
+            
+            // Update position to new match
+            cursorY = matches[currentMatch].first;
+            cursorX = matches[currentMatch].second;
+            
+            // Adjust view
+            viewY = std::max(0, cursorY - LINES/3);
+            if (cursorY >= viewY + LINES - 1) {
+                viewY = cursorY - LINES + 2;
+            }
+            viewX = std::max(0, cursorX - COLS/3);
+            if (cursorX >= viewX + COLS - 1) {
+                viewX = cursorX - COLS + 2;
             }
         }
-        if (found){
-            drawMessage("Text has been found! :)");
-        } else {
-            drawMessage("Error: Text has not been found! :(");
-        }
-        getch();
     }
 
     // This function is very good as it will allow you to replace text - Useful when it comes to programming...
-    void Replace(){
-        drawMessage("Enter text to find: ");
+    void Replace() {
+        drawMessage("Find: ");
         echo();
         char searchStr[256];
         int ch = getch();
 
-        if (ch == 24){
+        if (ch == 24) { // Control + X to cancel
             noecho();
             return;
         }
         ungetch(ch);
-        getstr(searchStr);
-        noecho();
+        getnstr(searchStr, sizeof(searchStr) - 1);
+        
+        if (strlen(searchStr) == 0) {
+            noecho();
+            drawMessage("Replace has been canceled!");
+            return;
+        }
 
-        drawMessage("Enter text to replace: ");
-        echo();
+        drawMessage("Replace with: ");
         char replaceStr[256];
-        getstr(replaceStr);
+        getnstr(replaceStr, sizeof(replaceStr) - 1);
         noecho();
 
-
+        int replaceCount = 0;
         bool replaced = false;
-        for (size_t i = 0; i < content.size(); ++i){
-            size_t pos = content[i].find(searchStr);
-            if (pos != std::string::npos){
-                content[i].replace(pos, strlen(searchStr), replaceStr);
-                replaced = true;
+        std::vector<std::pair<int, size_t>> matches;
+
+        // First find all matches
+        for (size_t i = 0; i < content.size(); i++) {
+            size_t pos = 0;
+            while ((pos = content[i].find(searchStr, pos)) != std::string::npos) {
+                matches.emplace_back(i, pos);
+                pos += strlen(searchStr);
             }
         }
-        if (replaced){
-            drawMessage("Text has been replaced. :)");
+
+        if (matches.empty()) {
+            drawMessage("Error: No matches found! :(");
+            return;
+        }
+
+        // Store original state for undo
+        pushUndo();
+
+        // Process each match
+        for (size_t matchIdx = 0; matchIdx < matches.size(); matchIdx++) {
+            auto [i, pos] = matches[matchIdx];
+            cursorY = i;
+            cursorX = pos;
+            
+            // Center view
+            viewY = std::max(0, cursorY - LINES/3);
+            viewX = std::max(0, cursorX - COLS/3);
+            
+            // Highlight match
+            clear();
+            for (int y = 0; y < LINES - 1; y++) {
+                int lineIdx = y + viewY;
+                if (lineIdx < content.size()) {
+                    mvprintw(y, 0, "%s", content[lineIdx].substr(viewX, COLS - 1).c_str());
+                }
+            }
+            
+            move(cursorY - viewY, cursorX - viewX);
+            attron(A_REVERSE);
+            addstr(searchStr);
+            attroff(A_REVERSE);
+            
+            std::string prompt = "Replace? ([y]es/[n]o/[a]ll/[q]uit) [";
+            prompt += std::to_string(matchIdx + 1);
+            prompt += "/";
+            prompt += std::to_string(matches.size());
+            prompt += "]";
+            drawMessage(prompt.c_str());
+            
+            int answer = tolower(getch());
+            switch (answer) {
+                case 'y':
+                    content[i].replace(pos, strlen(searchStr), replaceStr);
+                    replaceCount++;
+                    replaced = true;
+                    break;
+                case 'a':
+                    // Replace all remaining
+                    for (; matchIdx < matches.size(); matchIdx++) {
+                        auto [j, p] = matches[matchIdx];
+                        content[j].replace(p, strlen(searchStr), replaceStr);
+                        replaceCount++;
+                    }
+                    replaced = true;
+                    matchIdx = matches.size(); // Exit loop
+                    break;
+                case 'q':
+                    matchIdx = matches.size(); // Exit loop
+                    break;
+                case 'n':
+                default:
+                    break;
+            }
+        }
+
+        if (replaced) {
+            std::string msg = "Replaced ";
+            msg += std::to_string(replaceCount);
+            msg += " occurrence(s)";
             isModified = true;
+            drawMessage(msg.c_str());
+        } else {
+            // If no replacements made, pop the undo state we pushed earlier
+            if (!undoStack.empty()) {
+                undoStack.pop();
+            }
+            drawMessage("No replacements made.");
         }
-        else {
-            drawMessage("Error: Text has not been found. :(");
-        }
-        getch();
-    }
-    
+    }    
     void drawEditor(std::string &filename) {
         bool running = true;
         //int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
