@@ -158,7 +158,7 @@ private:
     void drawHelp() {
         clear();
         attron(COLOR_PAIR(3));
-        mvprintw(1, 1, "Help Menu for NemoS 3.8:");
+        mvprintw(1, 1, "Help Menu for NemoS 3.9:");
         mvprintw(3, 1, "Arrow Keys: Navigate");
         mvprintw(4, 1, "Enter: Insert new line");
         mvprintw(5, 1, "Backspace: Delete character");
@@ -219,12 +219,17 @@ private:
             // Ensure cursor stays within bounds
             cursorY = std::min(cursorY, (int)content.size() - 1);
             cursorX = std::min(cursorX, (int)content[cursorY].size());
-            
+            viewY = std::max(0, cursorY - 2);
+            viewX = std::max(0, cursorX - (COLS / 2));
+            if (cursorX >= viewX + COLS - 1){
+                viewX = cursorX - COLS + 2;
+            }
             refresh();
         } else {
             drawMessage("Error: Nothing to undo! :(");
         }
     }
+
 
     void redo() {
         if (!redoStack.empty()) {
@@ -451,7 +456,7 @@ private:
 
 
 
-            mvprintw(LINES - 1, 0, "NemoS 3.8 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
+            mvprintw(LINES - 1, 0, "NemoS 3.9 | File: %s | Word Count: %d | Line: %d | Column: %d | Ctrl+H: Help | Ctrl+X: Exit ", filename.c_str(),wordCount, cursorY + 1, cursorX +1);
             attroff(COLOR_PAIR(2));
             cursorX = std::min(cursorX, (int)content[cursorY].size());
             cursorY = std::min(cursorY, (int)content.size() -1);
