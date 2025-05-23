@@ -4,6 +4,7 @@
 Red circle = Still in Alpha or Beta. - You may face problems using it. <br>
 Check mark = Supported. <br>
 Empty = End of Life. <br>
+Down arrow = Can no longer download this version of NemoS. <br>
 
 | Version     | Supported          |
 | -------     | ------------------ |
@@ -23,9 +24,9 @@ Empty = End of Life. <br>
 | 3.0.0       |                    |
 | 3.0.0-beta  |                    |
 | 3.0.0-alpha |                    |
-| 2           |                    |
-| 1           |                    |
-| ALPHA       |                    |
+| 2           | ⬇️                 |
+| 1           | ⬇️                 |
+| ALPHA       | ⬇️                 |
 
 
 
