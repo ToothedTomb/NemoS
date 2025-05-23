@@ -50,19 +50,19 @@ nemos txt.txt - Will use the file or create a new one if txt.txt does not exist.
  Ctrl+X: Exit editor
 
 # Screenshots:
+![Screenshot From 2025-05-23 16-43-31](https://github.com/user-attachments/assets/bcb342ce-7c00-4863-82cc-b0caa28de422)
 
-[Screenshot From 2025-05-23 16-44-07](https://github.com/user-attachments/assets/8cd4a198-28d5-4bc4-b656-14bdd8c31686)
+![Screenshot From 2025-05-23 16-43-46](https://github.com/user-attachments/assets/56665050-29df-49a9-bb36-427b52afdc18)
 
-![Screenshot From 2025-05-23 16-43-46](https://github.com/user-attachments/assets/67f29f71-6f1b-4d54-b3b8-cedcb95b38cd)
+![Screenshot From 2025-05-23 16-44-07](https://github.com/user-attachments/assets/b12310d4-4660-48ce-aae9-7dc983a15c25)
 
-![Screenshot From 2025-05-23 16-45-13](https://github.com/user-attachments/assets/d64c9b84-9aa5-48e6-ab50-d4b38ee75702)
+![Screenshot From 2025-05-23 16-44-24](https://github.com/user-attachments/assets/b8826c92-70d0-4173-924c-171f04509059)
 
-![Screenshot From 2025-05-23 16-45-00](https://github.com/user-attachments/assets/63128666-c855-44a1-bba0-3247b34ca59e)
+![Screenshot From 2025-05-23 16-44-42](https://github.com/user-attachments/assets/c0f1cdc3-cbc2-432f-98e4-65470b06e73d)
 
-![Screenshot From 2025-05-23 16-44-42](https://github.com/user-attachments/assets/2635c6db-f8af-4e39-a4ab-ffa6e92f041c)
+![Screenshot From 2025-05-23 16-45-00](https://github.com/user-attachments/assets/2978a26e-dd1c-4fd1-8794-a52f4daffae5)
 
-![Screenshot From 2025-05-23 16-44-24](https://github.com/user-attachments/assets/20ef2f65-8957-4952-b671-e90de44f176b)
-
+![Screenshot From 2025-05-22 18-38-21](https://github.com/user-attachments/assets/0cfdabec-ad94-4254-b0f8-96d9199fc6e6)
 
 
 # Compile the code:
