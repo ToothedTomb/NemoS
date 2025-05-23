@@ -67,11 +67,11 @@ g++ main.cpp -o nemos -lncurses
 
 # Download the latest stable version:
 
-https://github.com/ToothedTomb/NemoS/releases/tag/3.9.0
+https://github.com/ToothedTomb/NemoS/releases/tag/4.0.0
 
 # Download the latest unstable version:
 
-https://github.com/ToothedTomb/NemoS/releases/tag/4.0.0-Beta
+https://github.com/ToothedTomb/NemoS/releases/tag/5.0.0-Alpha
 
 # Credits:
 Jonathan Steadman
