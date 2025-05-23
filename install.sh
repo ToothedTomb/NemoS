@@ -25,7 +25,13 @@ echo "If the install for xclip and lpr is not working and dont have it installed
 # Copy the binary to /usr/local/bin
 cp nemos /usr/local/bin/
 chmod +x /usr/local/bin/nemos
+# Install man page
 
+echo "Installing manuel to your system. Man pages will work."
+mkdir -p /usr/local/man/man1
+cp nemos.1 /usr/local/man/man1/
+gzip /usr/local/man/man1/nemos.1
+mandb
 # Notify the user of successful installation
 echo "NemoS has been installed successfully!"
 echo "You can now run it from any directory using the command: 'nemos' or 'nemos file.txt'." 
