@@ -1,4 +1,4 @@
-
+# What is NemoS?
 NemoS - Is a simple Terminal Text Editor that is based on Nano.
 
 # Install to your system:
