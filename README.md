@@ -1,5 +1,5 @@
 # What is NemoS?
-NemoS - Is a simple Terminal Text Editor that is based on Nano.
+NemoS - Is a simple Terminal Text Editor that is similar to Nano. 🙂
 
 # Install to your system:
 **Note: You need to be the root user.**
