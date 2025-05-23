@@ -13,6 +13,8 @@ nemos - Will create a untitlied.txt file.
 
 nemos txt.txt - Will use the file or create a new one if txt.txt does not exist.
 
+# Open the NemoS man pages:
+man nemos - Open the help page for NemoS, using man pages. 
 
 # Instuctions:
 
