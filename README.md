@@ -1,4 +1,3 @@
-![Screenshot From 2025-05-23 16-43-31](https://github.com/user-attachments/assets/7060af64-eb59-469c-a495-f84d27378590)# NemoS - Text Editor For Linux:
 
 NemoS - Is a simple Terminal Text Editor that is based on Nano.
 
