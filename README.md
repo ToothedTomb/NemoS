@@ -49,21 +49,31 @@ nemos txt.txt - Will use the file or create a new one if txt.txt does not exist.
  Ctrl+X: Exit editor
 
 # Screenshots:
+Below are the screenshots for this program - NemoS 4.0!
+<h3>Editing the document:</h3>
 
-<h2>Test</h2>
 ![Screenshot From 2025-05-23 16-43-31](https://github.com/user-attachments/assets/bcb342ce-7c00-4863-82cc-b0caa28de422)
+
+<h3>If changes are made but not saved yet. You wuill see modified next to the file name:</h3>
 
 ![Screenshot From 2025-05-23 16-43-46](https://github.com/user-attachments/assets/56665050-29df-49a9-bb36-427b52afdc18)
 
+<h3>Copy mode in NemoS:</h3>
+
 ![Screenshot From 2025-05-23 16-44-07](https://github.com/user-attachments/assets/b12310d4-4660-48ce-aae9-7dc983a15c25)
+
+<h3>Find mode in NemoS:</h3>
 
 ![Screenshot From 2025-05-23 16-44-24](https://github.com/user-attachments/assets/b8826c92-70d0-4173-924c-171f04509059)
 
+<h3>Find and replace mode in NemoS: </h3>
+
 ![Screenshot From 2025-05-23 16-44-42](https://github.com/user-attachments/assets/c0f1cdc3-cbc2-432f-98e4-65470b06e73d)
+
+<h3>Help menu in NemoS:</h3>
 
 ![Screenshot From 2025-05-23 16-45-00](https://github.com/user-attachments/assets/2978a26e-dd1c-4fd1-8794-a52f4daffae5)
 
-![Screenshot From 2025-05-22 18-38-21](https://github.com/user-attachments/assets/0cfdabec-ad94-4254-b0f8-96d9199fc6e6)
 
 
 # Compile the code:
