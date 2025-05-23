@@ -56,7 +56,7 @@ Below are the screenshots for this program - NemoS 4.0!
 
 ![Screenshot From 2025-05-23 16-43-31](https://github.com/user-attachments/assets/bcb342ce-7c00-4863-82cc-b0caa28de422)
 
-<h3>If changes are made but not saved yet. You wuill see modified next to the file name:</h3>
+<h3>If changes are made but not saved yet. You will see modified next to the file name:</h3>
 
 ![Screenshot From 2025-05-23 16-43-46](https://github.com/user-attachments/assets/56665050-29df-49a9-bb36-427b52afdc18)
 
