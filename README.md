@@ -77,8 +77,10 @@ Below are the screenshots for this program - NemoS 4.0!
 ![Screenshot From 2025-05-23 16-45-00](https://github.com/user-attachments/assets/2978a26e-dd1c-4fd1-8794-a52f4daffae5)
 
 # Videos:
+Below are videos that shows the features of NemoS 4.0:
+<h3>NemoS - Copy Mode:</h3>
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/zE8a13AjzFA?si=iEPd_U3zmGcffefJ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" ></iframe>
+Uploading simplescreenrecorder-2025-05-24_16.39.24.mp4…
 
 # Compile the code:
 
