@@ -79,8 +79,8 @@ Below are the screenshots for this program - NemoS 4.0!
 # Videos:
 Below are videos that shows the features of NemoS 4.0:
 <h3>NemoS - Copy Mode:</h3>
+https://youtu.be/zE8a13AjzFA?si=rrWoH7lPbAEDCW4A
 
-Uploading simplescreenrecorder-2025-05-24_16.39.24.mp4…
 
 # Compile the code:
 
