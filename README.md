@@ -82,6 +82,10 @@ Below are videos that shows the features of NemoS 4.0:
 
 https://github.com/user-attachments/assets/0cce7fff-f5aa-4275-b805-95a1b61c9a2e
 
+<h3>NemoS - Find Mode:</h3>
+
+https://github.com/user-attachments/assets/842bcb1c-6ee3-4ac9-a870-5306cc45e110
+
 # Compile the code:
 
 g++ main.cpp -o nemos -lncurses
