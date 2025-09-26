@@ -193,8 +193,6 @@ int DeleteFile(int argc, char *argv[], int i) {
     return 0;
 }
 
-
-
 class NemoS {
 public:
     NemoS() {
@@ -237,7 +235,7 @@ void run(std::string &filename) {
 private:
     int viewX = 0, viewY = 0; // Tracks the visible area (scroll position)
 
-    int cursorX = 0, cursorY = 0;     // Cursor position
+    int cursorX = 0, cursorY = 0;     // Cursor position?
     std::stack<std::vector<std::string>> undoStack; // Undo stack
     std::stack<std::vector<std::string>> redoStack; // Redo stack
     std::deque<int> konamiSequence; //The easter egg. 
@@ -247,7 +245,8 @@ private:
 
 
     void loadFile(const std::string &filename) {
-    // Clear existing content
+    void goToLine();
+        // Clear existing content
     content.clear();
     
     // Check if file exists first
@@ -397,14 +396,77 @@ void saveFile(const std::string &filename) {
         mvprintw(12,1,   "Ctrl+Y: Redo changes");
         mvprintw(13,1, "Ctrl+F: Find text");
         mvprintw(14,1, "Ctrl+K: Replace text");
-        mvprintw(15,1, "Ctrl+D: Show date");
-        mvprintw(16,1, "Ctrl+T: Show time");
-        mvprintw(17,1, "Ctrl+P: Print document"); // This will use a Linux terminal application known as lpr.
-        mvprintw(18, 1, "Ctrl+X: Exit editor");
-        mvprintw(19, 1, "Press any key to return to the editor...");
+        mvprintw(15,1, "Ctrl+L: Go to line number");
+        mvprintw(16,1, "Ctrl+D: Show date");
+        mvprintw(17,1, "Ctrl+T: Show time");
+        mvprintw(18,1, "Ctrl+P: Print document"); // This will use a Linux terminal application known as lpr.
+        mvprintw(19, 1, "Ctrl+X: Exit editor");
+        mvprintw(20, 1, "Press any key to return to the editor...");
 
         attroff(COLOR_PAIR(3));
         getch();
+    }
+    void goToLine() {
+        // Clear the message area first
+        move(LINES - 2, 0);
+        clrtoeol();
+        attron(COLOR_PAIR(2));
+        mvprintw(LINES - 2, 0, "Go to line number: ");
+        attroff(COLOR_PAIR(2));
+        refresh();
+        
+        echo();
+        curs_set(1);
+        
+        char lineInput[256];
+        int ch = getch();
+        
+        if (ch == 24) { // Ctrl+X to cancel
+            noecho();
+            curs_set(0);
+            drawMessage("Go to line number has been canceled!");
+            return;
+        }
+        
+        ungetch(ch);
+        getnstr(lineInput, sizeof(lineInput) - 1);
+        
+        noecho();
+        curs_set(0);
+        
+        curs_set(1);
+        if (strlen(lineInput) == 0) {
+            drawMessage("Go to line number has been canceled!");
+            return;
+        }
+        
+        try {
+            int targetLine = std::stoi(lineInput) - 1;
+            
+            if (targetLine < 0 || targetLine >= content.size()) {
+                std::string msg = "Error: Line number " + std::to_string(targetLine + 1) + 
+                                " is out of range! (1-" + std::to_string(content.size()) + ") :(";
+                drawMessage(msg.c_str());
+                return;
+            }
+            
+            // Jump to the target line
+            cursorY = targetLine;
+            cursorX = 0;
+            viewX = 0;
+            
+            // Center the view on the target line
+            viewY = std::max(0, cursorY - (LINES - 2) / 2);
+            if (cursorY >= viewY + LINES - 1) {
+                viewY = cursorY - LINES + 2;
+            }
+            
+            std::string msg = "Jumped to line number " + std::to_string(targetLine + 1) + " :)";
+            drawMessage(msg.c_str());
+            
+        } catch (const std::exception& e) {
+            drawMessage("Error: Please enter a valid line number! :(");
+        }
     }
     void pushUndo() {
         // Create a deep copy of the current content
@@ -874,7 +936,7 @@ void printFile(const std::string &filename) {
                                 (isModified ? " [Modified] " : " ") +
                                 "| File Size: " + FileSize + 
                                 " | Words count: " + std::to_string(wordCount) +
-                                " | Ctrl+H: Help" + "| Ctrl+X: Exit" ;
+                                " | Ctrl+H: Help" + " | Ctrl+X: Exit" ;
             
             // Truncate if too long
             if (statusMsg.length() > COLS) {
@@ -905,7 +967,9 @@ void printFile(const std::string &filename) {
                     viewX = std::max(0, cursorX - (COLS - 2));
                 clear();  // Clear and redraw the screen
                 break;
-
+                case 12: // Control + L = moving to another line. 
+                    goToLine();
+                    break;
                 case KEY_UP:
                     if (cursorY > 0) {
                         cursorY--;
